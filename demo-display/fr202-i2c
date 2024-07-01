@@ -1,0 +1,75 @@
+#!/usr/bin/env python3
+import smbus
+import sys
+
+reg = {"input" : 0,
+		"output" : 1,
+		"pol_inv" : 2,
+		"config" : 3,
+}
+
+pins = {"dac_alarm_n" : 0,
+		"uart_mux_oe_n" : 1,
+		"uart_mux_sel" : 2,
+		"p5v_ext_en_n" : 3,
+		"p5v_adc_en_n" : 5,
+		"p7v6_shdn" : 6,
+		"p15v_dac_en_n" : 4,
+		"vr_fault_n" : 7,
+}
+
+pin_list = "|".join([k for k in pins.keys() if 'rsvd' not in k])
+
+dev_addr = 0x3c
+pindirs = 0b10000001
+
+def enable_outputs(bus, pincfg=0):
+	bus.write_byte_data(dev_addr, reg["config"], pincfg)
+
+def read_inputs(bus):
+	result = bus.read_byte_data(dev_addr, reg['input'])
+	rdict = {}
+	for k in pins:
+		rdict[k] = 1 if (result & (1 << pins[k])) else 0
+	return result, rdict
+
+def write_output(bus, output, state):
+	r = read_inputs(bus)[0]
+	if state:
+		out = r | (1 << pins[output])
+	else:
+		out = r & ~(1 << pins[output])
+	bus.write_byte_data(dev_addr, reg["output"], out)
+
+def print_results(rdict, rsvd=False):
+	for k in rdict:
+		if rsvd or not k.startswith("rsvd"):
+			print("{0}: {1}".format(k, rdict[k]))
+
+def print_help():
+	print("""Syntax:
+i2c_gpio_util.py get [all|{pin_list}]
+i2c_gpio_util.py set [default|{pin_list}] [state]""".format(pin_list=pin_list))
+
+if __name__ == "__main__":
+	p = smbus.SMBus(1)
+	if len(sys.argv) < 3 or sys.argv[1] == 'help':
+		print_help()
+	elif sys.argv[1] == 'get':
+		results = read_inputs(p)[1]
+		if sys.argv[2] in results:
+			print(results[sys.argv[2]])
+		else:
+			print_results(results)
+	elif sys.argv[1] == 'set' and (len(sys.argv) > 3 or sys.argv[2] == 'default'):
+		enable_outputs(p, pindirs)
+		if sys.argv[2] in pins:
+			write_output(p, sys.argv[2], int(sys.argv[3]))
+		elif sys.argv[2] == 'default':
+			write_output(p, 'p5v_ext_en_n', 0)
+			write_output(p, 'p5v_adc_en_n', 0)
+			write_output(p, 'p7v6_shdn', 0)
+			write_output(p, 'p15v_dac_en_n', 0)
+		#print_results(read_inputs(p)[1])
+	else:
+		print_help()

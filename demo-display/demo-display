@@ -1,0 +1,291 @@
+#!/usr/bin/env python3
+
+import glob
+import os
+import subprocess
+import spidev
+import time
+import serial
+import ST7789
+import RPi.GPIO as gpio
+import smbus
+from PIL import Image
+from PIL import ImageDraw
+from PIL import ImageFont
+
+st1633_reg = {'status' : 0x01,
+		'control' : 0x02,
+		'x0_low' : 0x13,
+		'y0_low' : 0x14,
+		'xy0_hi' : 0x12,
+}
+
+"""Functions that retrieve content for the display are below.
+Consider refactoring ones relying on shell command outputs for production use.
+"""
+def get_ifaces():
+	ifaces = []
+	for iface in glob.glob('/sys/class/net/*'):
+		if not iface.endswith('lo'):
+			ifaces.append(iface)
+	return ifaces
+
+def get_network_info(iface):
+	net_info = { 'name' : "",
+				'mac' : "",
+				'ip' : "",
+				'status' : "",
+	}
+	net_info['name'] = iface.split("/")[-1]
+	with open(os.path.join(iface, 'address'), 'r') as f:
+		net_info['mac'] = f.read(20).strip()
+	try:
+		with open(os.path.join(iface, 'speed'), 'r') as f:
+			speed = f.read(20).strip()
+	except OSError:
+		speed = None
+	try:
+		with open(os.path.join(iface, 'carrier'), 'r') as f:
+			carrier = int(f.read(20).strip())
+	except OSError:
+		carrier = ""
+	if carrier:
+		if speed:
+			net_info['status'] = f"{speed} Mbps"
+		else:
+			net_info['status'] = "Connected"
+		ip = shell_get_result(['ip', '-4', 'addr'])
+		ip = ip[ip.find('inet', ip.find(net_info['name']))+4:]
+		net_info['ip'] = ip[:ip.find('/')].strip()
+	else:
+		net_info['status'] = "Disconnected"
+
+	return net_info
+
+def shell_get_result(proc):
+	p = subprocess.Popen(proc, stdout=subprocess.PIPE)
+	result, _ = p.communicate()
+	return result.decode()
+
+def get_info_page():
+	page_info = {'hostname' : "",
+				'sku' : "FR202",
+				'tot_mem' : "",
+				'disk_free' : "",
+				'cpu_temp' : "",
+	}
+	with open("/etc/hostname", 'r') as f:
+		page_info['hostname'] = f.read(20).strip()
+	with open("/proc/meminfo", 'r') as f:
+		mem = f.read(1024)
+		mem = mem[mem.find('MemTotal: ')+len('MemTotal: '):mem.find('\n', mem.find('MemTotal:'))].strip()
+		mem = round(float(mem.split(' ')[0]) / 1024 / 1024, 2)
+		page_info['tot_mem'] = f"{mem}GB"
+	df = shell_get_result(['df', '-h', '/']).split('\n')[1]
+	while df.find("  ") != -1:
+		df = df.replace("  ", " ")
+	page_info['disk_free'] = 	df.split(" ")[3]
+	page_info['cpu_temp'] = shell_get_result(['vcgencmd', 'measure_temp']).strip().replace('\'', ' ').split('=')[1]
+	return page_info
+
+"""
+Manually retrieve ADC information.
+For demonstration purposes only.
+Scaling factor of 1.3 is applied to all inputs. 
+"""
+def adc_parse_result(data):
+	maxval = 0x0fffffff
+	out = {}
+	out['eoc'] = data[0] >> 7 & 0x1
+	out['rsvd'] = data[0] >> 6 & 0x1
+	out['sign'] = data[0] >> 5 & 0x1
+	out['msb'] = data[0] >> 4 & 0x1
+	out['data'] = ((data[0] & 0x0f) << 24) + (data[1] << 16) + (data[2] << 8) + data[3]
+	if not out['sign']:
+		out['data'] = out['data'] ^ 0xfffffff
+	out['normal'] = (out['data'] / (maxval* 1.0)) * 1.3
+	return out
+
+def adc_setup_xmit(addr, **kwargs):
+	en = kwargs.get("en", 1)
+	en = 1 if en else 0
+	single = kwargs.get("single", 0)
+	single = 1 if single else 0
+	odd = kwargs.get("odd", 0)
+	odd = 1 if single else 0
+	osr = kwargs.get("osr", 0)
+	twox = kwargs.get("twox", 0)
+	twox = 1 if single else 0
+	outbytes = [0x80 | (en << 5) | (single << 4) | (odd << 3) | (addr),
+				(osr << 4) | (twox << 3),
+				0x00,
+				0x00]
+	return outbytes
+
+def adc_read(addr):
+	adc = spidev.SpiDev(4,0)
+	adc.max_speed_hz = 4000000
+	res = adc_parse_result(adc.xfer2(adc_setup_xmit(addr)))
+	while res['eoc'] != 0:
+		res = adc_parse_result(adc.xfer2(adc_setup_xmit(addr)))
+	return round(res['normal'], 2)
+
+"""Retreive DIO information from the DIO MCU command line interface.
+For demonstration purposes only.
+"""
+def dio_get_pin_status(port, dir, group, pin):
+	if dir == "I":
+		dircmd = "input"
+	else:
+		dircmd = "output"
+	port.write(f'dio get D{dir}_G{group} {dircmd} {pin}\n'.encode())
+	time.sleep(0.005)
+	res = port.read(port.inWaiting())
+	return res.split(b'\r\n')[1]
+
+def dio_get_all_pin_status(port, dir="I"):
+	result = ""
+	for group in range(0, 4):
+		for pin in range(0, 4):
+			result = result + dio_get_pin_status(port, dir, group, pin).decode()
+	if "Failed" in result:
+		result = "Not found"
+	return result
+
+"""Generate display image, layering in "next" and "prev" buttons."""
+def gen_image(image):
+	next = Image.open(f"{image_dir}next_button.png")
+	prev = Image.open(f"{image_dir}prev_button.png")
+	image.paste(prev, (20,150))
+	image.paste(next, (190, 150))
+	return image
+
+def display_image(display, img):
+	image = gen_image(Image.open(img))
+	display.display(image)
+
+"""Generate and display an image with text overlaid."""
+def display_image_with_text(display, text, textColor, imgFont):
+	image = gen_image(Image.new("RGB", size = (320,240), color = (128,128,128)))
+	imageOut = ImageDraw.Draw(image)
+	imageOut.text((10,10), text, font=imgFont, fill=textColor)
+	display.display(image)
+
+"""Handle touch reads in-application. 
+There are other ways to capture this using the ST1633 kernel module and input/event devices.
+For demo purposes, complexity introduced that way is undesirable.
+Logs the last touch for review in the main loop, where it's checked against the button positions."""
+def touch_callback(channel):
+	global touch_coords
+	touch_bus = 5
+	touch_addr = 0x70
+	try:
+		i2c = smbus.SMBus(touch_bus)
+		t_hi = i2c.read_byte_data(touch_addr, st1633_reg['xy0_hi'])
+		if t_hi & 0x80:
+			tx = i2c.read_byte_data(touch_addr, st1633_reg['x0_low']) + ((t_hi & 0x70) << 4)
+			ty = i2c.read_byte_data(touch_addr, st1633_reg['y0_low']) + ((t_hi & 0x07) << 8)
+			touch_coords = (True, (tx, ty))
+	except IOError:
+		touch_coords = (False, (None, None))
+
+"""setup global font and display parameters"""
+textColor = (255,255,255)
+imgFont = ImageFont.truetype('LiberationMono-Bold.ttf', 22)
+while 1:
+	try:
+		display=ST7789.ST7789(port=3,cs=0,rst=27,dc=16,rotation=180,width=320,height=240,spi_speed_hz=60000000)
+		display._spi.mode=3
+		display._init()
+		break
+	except:
+		time.sleep(1)
+"""enable display backlight"""
+os.system("/usr/sbin/fr202-i2c set p7v6_shdn 0")
+os.system("/usr/sbin/fr202-i2c set p5v_adc_en_n 0")
+
+"""setup touch interface and touch parameters, including regions for buttons"""
+touch_int = 26
+touch_coords= (False, (None, None))
+gpio.setmode(gpio.BCM)
+gpio.setup(touch_int, gpio.IN, pull_up_down=gpio.PUD_UP)
+gpio.add_event_detect(touch_int, gpio.FALLING, callback=touch_callback)
+prev_coords = ((150,200), (220,300))
+next_coords = ((150,20), (220,130))
+
+"""setup dio parameters"""
+dio_port = '/dev/ttyACM0'
+
+"""set current screen, track screens, etc"""
+page = 'main'
+net_screens = [x.split('/')[-1] for x in get_ifaces()]
+net_screens.sort()
+screens = ['main'] + net_screens + ['dio', 'aio', 'do0', 'do1', 'di0', 'di1', 'ai1', 'ai0', 'comms']
+idx = 0
+blank_time = 0
+cur_page = ''
+image_dir = '/opt/demo-images/'
+loop_incr = 0.1
+backlight_timeout = 60
+idle_time = 0
+while 1:
+	if cur_page != page:
+		if page == 'main':
+			sys_info = get_info_page()
+			text = f"Host: {sys_info['hostname']}\nSKU: {sys_info['sku']}\nRAM: {sys_info['tot_mem']}\nDisk Free: {sys_info['disk_free']}\nCPU Temp: {sys_info['cpu_temp']}"
+			display_image_with_text(display, text, textColor, imgFont)
+		elif page in  net_screens:
+			net_info = {}
+			key = page
+			for x in get_ifaces():
+				nkey = x.split('/')[-1]
+				net_info[nkey] = get_network_info(x)
+			text = f"Name: {net_info[key]['name']}\nMAC: {net_info[key]['mac']}\nIP: {net_info[key]['ip']}\nStatus: {net_info[key]['status']}"
+			display_image_with_text(display, text, textColor, imgFont)
+		elif page == 'dio':
+			try:
+				with serial.Serial(dio_port) as mcu:
+					time.sleep(0.005)
+					mcu.write(b"\r\n")
+					time.sleep(0.005)
+					mcu.read(mcu.inWaiting()) #get anything waiting in buffer and discard
+					inp = dio_get_all_pin_status(mcu, "I")
+					outp = dio_get_all_pin_status(mcu, "O")
+				text = f"DIO Status\nInput: \n{inp}\nOutput: \n{outp}"
+			except:
+				text = "DIO Status\nDIO Unavailable."
+			display_image_with_text(display, text, textColor, imgFont)
+		elif page == 'aio':
+			adc_status = []
+			for i in [0,2,4,6]:
+				adc_status.append(adc_read(i))
+			text = f"Analog Status\nAI0: {adc_status[0]}\nAI1: {adc_status[1]}\nAI2: {adc_status[2]}\nAI3: {adc_status[3]}"
+			display_image_with_text(display, text, textColor, imgFont)
+		elif page in ['di0', 'di1', 'do0', 'do1', 'ai0', 'ai1', 'comms']:
+			display_image(display, f"{image_dir}{page}.png")
+	cur_page = page #comment to force screen to re-check data and update at each iteration
+	time.sleep(loop_incr)
+	idle_time += loop_incr
+	if idle_time >= backlight_timeout:
+		os.system("/usr/sbin/fr202-i2c set p7v6_shdn 1")
+	if touch_coords[0]:
+		if idle_time > backlight_timeout:
+			os.system("/usr/sbin/fr202-i2c set p7v6_shdn 0")
+		else:
+			if next_coords[0][0] < touch_coords[1][0] < next_coords[1][0] and \
+				next_coords[0][1] < touch_coords[1][1] < next_coords[1][1]: #'next' button is pushed
+				if time.time() - blank_time > 0.5: #'blanking' time where additional touches are ignored
+					blank_time = time.time()
+					idx += 1
+					if idx >= len(screens):
+						idx = 0
+			elif prev_coords[0][0] < touch_coords[1][0] < prev_coords[1][0] and \
+				prev_coords[0][1] < touch_coords[1][1] < prev_coords[1][1]: #'prev' button is pushed
+				if time.time() - blank_time > 0.5: 
+					blank_time = time.time()
+					idx -= 1
+					if idx < 0:
+						idx = len(screens) - 1
+		idle_time = 0
+		page = screens[idx]
+		touch_coords = (False, (None, None))

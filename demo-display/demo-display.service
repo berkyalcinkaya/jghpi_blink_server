@@ -1,0 +1,10 @@
+[Unit]
+Description=Demo display service for FR202
+
+[Service]
+Type=simple
+ExecStart=/usr/sbin/demo-display
+TimeoutStartSec=0
+
+[Install]
+WantedBy=multi-user.target
