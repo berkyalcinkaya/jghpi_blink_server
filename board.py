@@ -52,16 +52,22 @@ def blink(n1, n2, n3):
 def stop_blinking():
     stop_event.set()
 
+GPIO.cleanup()
 last_switch_state = False
 switch_state_on = switch_on()
 while True:
+    print("in loop")
     last_switch_state = switch_state_on
     switch_state_on = switch_on()
     switch_toggled = last_switch_state != switch_state_on
+    print(last_switch_state, switch_state_on)
     if switch_toggled:
+        print(switch_toggled)
         if switch_on() and not board_is_on():
+            print("board on")
             freq = get_freq_from_switches()
             if freq:
                 turn_on_blink_via_api(freq)
         elif (not switch_on()) and board_is_on():
+            print("board off")
             turn_off_blink_via_api()
