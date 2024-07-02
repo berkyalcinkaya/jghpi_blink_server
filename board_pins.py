@@ -10,10 +10,10 @@ Configures Pins as input and outputs. Imported from board.py
 import RPi.GPIO as GPIO  # sudo apt-get install python3-rpi.gpio
 
 # Setting up GPIO pins
-SWITCH_200 = 2
-SWITCH_100 = 3
-SWITCH_50 = 4
-SWITCH_ON = 5
+SWITCH_200 = 3
+SWITCH_100 = 4
+SWITCH_50 = 5
+SWITCH_ON = 2
 
 # Constants
 ON = 1
@@ -24,11 +24,6 @@ LED1 = 6
 LED2 = 7
 LED3 = 8
 
-# Setting up GPIO pins
-SWITCH_200 = 2
-SWITCH_100 = 3
-SWITCH_50 = 4
-SWITCH_ON = 5
 
 # Setup
 GPIO.setmode(GPIO.BCM)
