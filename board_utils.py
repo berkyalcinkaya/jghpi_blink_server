@@ -12,6 +12,12 @@ from board_pins import *
 def get_interval_from_freq(freq):
     return 1/freq
 
+def get_freq_from_switches():
+    intrvl = get_interval_from_freq()
+    if intrvl:
+        return 1/intrvl
+    return None
+
 def get_interval_from_switches():
     if GPIO.input(SWITCH_200) == ON:
         return 1 / 200

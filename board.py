@@ -10,11 +10,21 @@ import RPi.GPIO as GPIO  # sudo apt-get install python3-rpi.gpio
 import threading
 import time
 from board_pins import *
-from board_utils import switch_on, blink_all_three_multiples, get_interval_from_switches, all_off
-from utils import triggered_remote, update_json_file
-
+from board_utils import get_freq_from_switches, switch_on, blink_all_three_multiples, get_interval_from_switches, all_off
+from utils import board_is_on, triggered_remote, update_json_file
+import requests
 # Event to stop threads
 stop_event = threading.Event()
+
+def turn_on_blink_via_api(freq):
+    url = "http://10.2.64.153:5000/blink"
+    data = {
+        "key1": "value1",
+        "key2": "value2"
+    }
+    response = requests.post(url, json=data)
+
+
 
 def blink_led(led, on_time, off_time):
     while not stop_event.is_set():
@@ -38,19 +48,21 @@ def blink(n1, n2, n3):
 def stop_blinking():
     stop_event.set()
 
+last_switch_state = False
+switch_state_on = switch_on()
 while True:
-    thread = None
-    thread_on = False
-    if switch_on() and not triggered_remote():
-        interval = get_interval_from_switches()
-        if interval:
-            thread = threading.Thread(target=blink_led, args=(interval))
-            thread.start()
-            update_json_file(1, [interval/2, interval, interval*2])
-            thread_on = True
-    else:
-        if thread_on:
-            stop_blinking()
-            thread = None
-            update_json_file(0, [0,0,0])
-        all_off()
+    last_switch_state = switch_state_on
+    switch_state_on = switch_on()
+    switch_toggled = last_switch_state != switch_state_on
+    
+    if switch_toggled:
+        if switch_on() and not board_is_on():
+            freq = get_freq_from_switches()
+            if freq:
+
+        else:
+            if thread_on:
+                stop_blinking()
+                thread = None
+                update_json_file(0, [0,0,0])
+            all_off()
