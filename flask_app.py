@@ -18,7 +18,12 @@ def handle_blink():
     if rate is None or not isinstance(rate, int):
         return jsonify({'error': 'Invalid input, must provide an integer rate'}), 400
     
+@app.route('/')
+def hello_world():
+    return 'Hello, World!'
 
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000)
 
     
 
