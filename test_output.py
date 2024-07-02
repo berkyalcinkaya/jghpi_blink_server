@@ -1,26 +1,35 @@
 import RPi.GPIO as GPIO
 
 # Set up the GPIO mode
-GPIO.setmode(GPIO.BOARD)  # Use BOARD pin numbering
+GPIO.setmode(GPIO.BCM)  # Use BCM pin numbering
 
-# Define all digital output pins (DO0 to DO15) and VCC based on BOARD numbering
+# Define all digital output pins (DO0 to DO15) and VCC based on BCM numbering
 output_pins = {
-    "VCC": 1,  # Pin 1 for 3.3V
-    "DO0": 11, "DO1": 13, "DO2": 15, "DO3": 16,
-    "DO4": 18, "DO5": 19, "DO6": 21, "DO7": 22,
-    "DO8": 23, "DO9": 5, "DO10": 7, "DO11": 8,
-    "DO12": 10, "DO13": 12, "DO14": 3, "DO15": 24
+    "DO0": 17, "DO1": 27, "DO2": 22, "DO3": 23,
+    "DO4": 24, "DO5": 10, "DO6": 9, "DO7": 25,
+    "DO8": 11, "DO9": 5, "DO10": 6, "DO11": 13,
+    "DO12": 19, "DO13": 26, "DO14": 21, "DO15": 20
 }
+
+# Set up the VCC pin separately
+vcc_pin = 1  # Assuming you want to control a GPIO pin to act as VCC
 
 # Set up output pins
 for pin in output_pins.values():
     GPIO.setup(pin, GPIO.OUT)
+
+# Set up the VCC pin
+GPIO.setup(vcc_pin, GPIO.OUT)
 
 # Function to power output pins
 def power_outputs():
     for name, pin in output_pins.items():
         GPIO.output(pin, GPIO.HIGH)
         print(f"Power supplied to {name} (pin {pin})")
+
+    # Power the VCC pin
+    GPIO.output(vcc_pin, GPIO.HIGH)
+    print(f"Power supplied to VCC (pin {vcc_pin})")
 
 try:
     power_outputs()
