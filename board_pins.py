@@ -20,10 +20,9 @@ ON = 1
 OFF = 0
 
 # Setting up GPIO pins
-LED1 = 6
-LED2 = 7
-LED3 = 8
-
+LED1 = 16
+LED2 = 17
+LED3 = 18
 
 # Setup
 GPIO.setmode(GPIO.BCM)

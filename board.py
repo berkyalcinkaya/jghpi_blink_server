@@ -52,7 +52,6 @@ def blink(n1, n2, n3):
 def stop_blinking():
     stop_event.set()
 
-GPIO.cleanup()
 last_switch_state = False
 switch_state_on = switch_on()
 while True:
