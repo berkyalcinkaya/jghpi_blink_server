@@ -13,18 +13,22 @@ from board_pins import *
 from board_utils import get_freq_from_switches, switch_on, blink_all_three_multiples, get_interval_from_switches, all_off
 from utils import board_is_on, triggered_remote, update_json_file
 import requests
+
+BASE_URL = "http://10.2.64.153:5000"
+
 # Event to stop threads
 stop_event = threading.Event()
 
 def turn_on_blink_via_api(freq):
-    url = "http://10.2.64.153:5000/blink"
+    url = f"{BASE_URL}/blink"
     data = {
         "key1": "value1",
-        "key2": "value2"
-    }
+        "key2": "value2"}
     response = requests.post(url, json=data)
 
-
+def turn_off_blink_via_api():
+    url = f"{BASE_URL}/off"
+    response = requests.get(url)
 
 def blink_led(led, on_time, off_time):
     while not stop_event.is_set():
@@ -54,15 +58,10 @@ while True:
     last_switch_state = switch_state_on
     switch_state_on = switch_on()
     switch_toggled = last_switch_state != switch_state_on
-    
     if switch_toggled:
         if switch_on() and not board_is_on():
             freq = get_freq_from_switches()
             if freq:
-
-        else:
-            if thread_on:
-                stop_blinking()
-                thread = None
-                update_json_file(0, [0,0,0])
-            all_off()
+                turn_on_blink_via_api(freq)
+        elif (not switch_on()) and board_is_on():
+            turn_off_blink_via_api()

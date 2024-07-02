@@ -17,8 +17,8 @@ def get_json_obj():
 
 def get_json_dict():
     with open(JSON_PATH, 'r') as file:
-        data = json.loads(file)
-    return data
+        data = json.load(file)
+    return dict(data)
 
 def board_is_on():
     # Check the status field
