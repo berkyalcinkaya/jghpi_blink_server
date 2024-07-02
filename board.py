@@ -9,9 +9,9 @@ API to start blinking based on upper three switches to determine fps to test
 import RPi.GPIO as GPIO  # sudo apt-get install python3-rpi.gpio
 import threading
 import time
-from .board_pins import *
-from .board_utils import switch_on, blink_all_three_multiples, get_interval_from_switches, all_off
-from .utils import update_json_file
+from board_pins import *
+from board_utils import switch_on, blink_all_three_multiples, get_interval_from_switches, all_off
+from utils import triggered_remote, update_json_file
 
 # Event to stop threads
 stop_event = threading.Event()
@@ -41,7 +41,7 @@ def stop_blinking():
 while True:
     thread = None
     thread_on = False
-    if switch_on():
+    if switch_on() and not triggered_remote():
         interval = get_interval_from_switches()
         if interval:
             thread = threading.Thread(target=blink_led, args=(interval))

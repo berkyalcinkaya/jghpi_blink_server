@@ -5,8 +5,12 @@ Berk Yalcinkaya
 
 Contains utility functions to control light blinking
 '''
+import time
 import RPi.GPIO as GPIO 
-from .board import *
+from board_pins import *
+
+def get_interval_from_freq(freq):
+    return 1/freq
 
 def get_interval_from_switches():
     if GPIO.input(SWITCH_200) == ON:

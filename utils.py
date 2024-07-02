@@ -10,20 +10,25 @@ import json
 
 JSON_PATH = 'status.json'
 
-def get_json():
+def get_json_obj():
     with open(JSON_PATH, 'r') as file:
         data = json.load(file)
     return data
 
+def get_json_dict():
+    with open(JSON_PATH, 'r') as file:
+        data = json.loads(file)
+    return data
+
 def board_is_on():
     # Check the status field
-    return get_json().get('status') == 1
+    return get_json_obj().get('status') == 1
 
 def triggered_remote():
-    return get_json().get("triggered_remote")
+    return get_json_obj().get("triggered_remote")
 
 def update_json_file(status=None, rates_hz=None, triggered_remote=False):
-    data = get_json()
+    data = get_json_obj()
     
     # Update the fields if new values are provided
     if status is not None:
