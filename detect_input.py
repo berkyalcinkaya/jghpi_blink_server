@@ -12,14 +12,14 @@ input_pins = {
     "DI12": 19, "DI13": 26, "DI14": 21, "DI15": 20
 }
 
-# Set up input pins
+# Set up input pins with pull-up resistors
 for pin in input_pins.values():
-    GPIO.setup(pin, GPIO.IN)
+    GPIO.setup(pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
 # Function to read inputs and print status
 def read_inputs():
     for name, pin in input_pins.items():
-        if GPIO.input(pin):
+        if GPIO.input(pin) == GPIO.LOW:  # Active low, meaning input is detected when the pin is LOW
             print(f"Input detected on {name} (pin {pin})")
         else:
             print(f"No input detected on {name} (pin {pin})")
