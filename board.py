@@ -55,11 +55,9 @@ def stop_blinking():
 last_switch_state = False
 switch_state_on = switch_on()
 while True:
-    print("in loop")
     last_switch_state = switch_state_on
     switch_state_on = switch_on()
     switch_toggled = last_switch_state != switch_state_on
-    print(last_switch_state, switch_state_on)
     if switch_toggled:
         print(switch_toggled)
         if switch_on() and not board_is_on():
