@@ -9,6 +9,7 @@ import time
 import serial
 
 def send_command(command, device="/dev/ttyACM0", read=False, read_wait=0.5):
+    print(command)
     try:
         with serial.Serial(device, 115200, timeout=1) as ser:
             # Send the command
@@ -20,6 +21,7 @@ def send_command(command, device="/dev/ttyACM0", read=False, read_wait=0.5):
             else:
                 return None
     except Exception as e:
+        print(e)
         return f"An error occurred: {e}"
     
 class OutPin():
