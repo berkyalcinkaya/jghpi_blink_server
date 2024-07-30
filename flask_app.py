@@ -5,7 +5,7 @@ import time
 from utils import board_is_on, triggered_remote, update_json_file, get_json_dict
 from board_utils import all_off, blink_all_three_multiples, get_interval_from_freq, switch_on
 
-RUN_LIGHTS = False # keep as false to test API alone
+RUN_LIGHTS = True # keep as false to test API alone
 thread = None
 stop_event = threading.Event()
 
