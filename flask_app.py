@@ -3,7 +3,7 @@ import json
 import threading
 import time
 from utils import board_is_on, triggered_remote, update_json_file, get_json_dict
-from board_utils import all_off, blink_all_three_multiples, get_interval_from_freq, switch_on
+from board_utils import send_command, leds, all_off, blink_all_three_multiples, get_interval_from_freq, switch_on
 
 RUN_LIGHTS = True # keep as false to test API alone
 thread = None
@@ -18,7 +18,7 @@ def handle_blink():
         #return jsonify({'error': 'Board is on from the controller. Contact site to turn board off'}), 400
         message += "Overriding on-site settings.\n"
         stop_blinking_thread()
-        all_off()
+        all_off(leds)
     
     data = request.json
     print(data)
@@ -58,7 +58,7 @@ def turn_off():
     if board_is_on():
         update_json_file(0, [0,0,0], False)
         stop_blinking_thread()
-        all_off()
+        all_off(leds)
     
         if switch_on():
             return jsonify({"warning": "on/off switch is on. Turn off on board"}), 200
@@ -79,6 +79,7 @@ def debug():
         return jsonify({"error": "Error decoding JSON from status.json"}), 500
 
 if __name__ == '__main__':
+    send_command("dio mode DO_G0 source")
     update_json_file(0, [0,0,0], False)
     app.run(host='0.0.0.0', port=5000)
 

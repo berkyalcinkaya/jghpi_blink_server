@@ -9,12 +9,9 @@ API to start blinking based on upper three switches to determine fps to test
 import RPi.GPIO as GPIO  # sudo apt-get install python3-rpi.gpio
 import threading
 import time
-from board_pins import *
-from board_utils import get_freq_from_switches, switch_on, blink_all_three_multiples, get_interval_from_switches, all_off
+from board_utils import leds, LED1, LED2, LED3, get_freq_from_switches, switch_on, blink_all_three_multiples, get_interval_from_switches, all_off
 from utils import board_is_on, triggered_remote, update_json_file
 import requests
-
-send_command("dio mode DO_G0 source")
 
 BASE_URL = "http://10.2.66.60:5000"
 
