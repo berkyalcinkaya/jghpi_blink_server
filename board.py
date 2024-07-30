@@ -32,11 +32,11 @@ def turn_off_blink_via_api():
 
 def blink_led(led, on_time, off_time):
     while not stop_event.is_set():
-        GPIO.output(led, ON)
+        led.on()
         time.sleep(on_time)
-        GPIO.output(led, OFF)
+        led.off()
         time.sleep(off_time)
-    GPIO.output(led, OFF)  # Ensure the LED is off when stopping
+    led.off()  # Ensure the LED is off when stopping
 
 def blink(n1, n2, n3):
     thread1 = threading.Thread(target=blink_led, args=(LED1, n1, n1))

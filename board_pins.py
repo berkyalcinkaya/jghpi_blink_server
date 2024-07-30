@@ -6,33 +6,48 @@ Berk Yalcinkaya
 Stores hardcoded pin input and output values as well as other neccessary constants
 Configures Pins as input and outputs. Imported from board.py
 '''
+import serial
+import time
 
-import RPi.GPIO as GPIO  # sudo apt-get install python3-rpi.gpio
+def send_command(command, device="/dev/ttyACM0", read=False, read_wait=0.5):
+    try:
+        with serial.Serial(device, 115200, timeout=1) as ser:
+            # Send the command
+            ser.write((command + '\n').encode())
+            if read:
+                time.sleep(read_wait)  # Wait for the device to process the command
+                response = ser.read_all().decode()
+                return response
+            else:
+                return None
+    except Exception as e:
+        return f"An error occurred: {e}"
+    
+class OutPin():
+    def __init__(self, pin, group = 0):
+        self.pin_num = int(pin)
+        self.group_num = group
+        self.type = "DO"
+        self.is_on = False
+    
+    def on(self):
+        send_command(f"dio set {self.type}_G{self.group_num} {self.pin_num} active")
+        self.is_on = True
+    
+    def off(self):
+        send_command(f"dio set {self.type}_G{self.group_num} {self.pin_num} inactive")
+        self.is_on = False
+    
+    def toggle(self):
+        if self.is_on:
+            self.off()
+        else:
+            self.on()
 
-# Setting up GPIO pins
-SWITCH_200 = 3
-SWITCH_100 = 4
-SWITCH_50 = 5
-SWITCH_ON = 2
 
-# Constants
-ON = 1
-OFF = 0
-
-# Setting up GPIO pins
-LED1 = 16
-LED2 = 17
-LED3 = 18
-
-# Setup
-GPIO.setmode(GPIO.BCM)
-GPIO.setup(SWITCH_200, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-GPIO.setup(SWITCH_100, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-GPIO.setup(SWITCH_50, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-GPIO.setup(SWITCH_ON, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-GPIO.setup(LED1, GPIO.OUT)
-GPIO.setup(LED2, GPIO.OUT)
-GPIO.setup(LED3, GPIO.OUT)
+LED1 = OutPin(0)
+LED2 = OutPin(1)
+LED3 = OutPin(2)
 
 # convenience list
 leds = [LED1, LED2, LED3]

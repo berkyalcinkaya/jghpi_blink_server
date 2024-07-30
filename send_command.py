@@ -2,7 +2,7 @@ import sys
 import serial
 import time
 
-def send_command(command, device):
+def send_command(command, device="/dev/ttyACM0"):
     try:
         with serial.Serial(device, 115200, timeout=1) as ser:
             # Send the command
