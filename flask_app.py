@@ -45,7 +45,7 @@ def handle_blink():
 
 def start_blinking_thread(interval):
     global thread
-    thread = threading.Thread(target=blink_all_three_multiples, args=(interval))
+    thread = threading.Thread(target=blink_all_three_multiples, args=(interval,))
     thread.start()
 
 def stop_blinking_thread():
