@@ -14,7 +14,9 @@ from board_utils import get_freq_from_switches, switch_on, blink_all_three_multi
 from utils import board_is_on, triggered_remote, update_json_file
 import requests
 
-BASE_URL = "http://10.2.64.153:5000"
+send_command("dio mode DO_G0 source")
+
+BASE_URL = "http://10.2.66.60:5000"
 
 # Event to stop threads
 stop_event = threading.Event()

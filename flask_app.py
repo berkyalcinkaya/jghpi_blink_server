@@ -79,6 +79,7 @@ def debug():
         return jsonify({"error": "Error decoding JSON from status.json"}), 500
 
 if __name__ == '__main__':
+    update_json_file(0, [0,0,0], False)
     app.run(host='0.0.0.0', port=5000)
 
     
