@@ -1,7 +1,6 @@
 from flask import Flask, request, jsonify
 import json
 import threading
-import RPi.GPIO as GPIO
 import time
 from utils import board_is_on, triggered_remote, update_json_file, get_json_dict
 from board_utils import all_off, blink_all_three_multiples, get_interval_from_freq, switch_on
@@ -67,6 +66,17 @@ def turn_off():
             return "Board Turned Off Successfuly", 200
     else:
         return "Board Already Off", 200
+
+@app.route("/debug")
+def debug():
+    try:
+        with open('status.json', 'r') as file:
+            status_data = json.load(file)
+        return jsonify(status_data), 200
+    except FileNotFoundError:
+        return jsonify({"error": "status.json file not found"}), 404
+    except json.JSONDecodeError:
+        return jsonify({"error": "Error decoding JSON from status.json"}), 500
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
