@@ -14,7 +14,6 @@ def send_command(command, device="/dev/ttyACM0", read=False, read_wait=0.5):
         with serial.Serial(device, 115200, timeout=1) as ser:
             # Send the command
             ser.write((command + '\n').encode())
-            time.sleep(1)
             if read:
                 time.sleep(read_wait)  # Wait for the device to process the command
                 response = ser.read_all().decode()
