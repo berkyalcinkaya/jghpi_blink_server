@@ -24,11 +24,11 @@ def handle_blink():
     print(data)
     rate = data.get('freq')
     try:
-        rate = int(rate)
+        rate = float(rate)
     except:
         rate = rate
     
-    if rate is None or not isinstance(rate, int) or rate == 0:
+    if rate is None or not isinstance(rate, float) or rate == 0:
         return jsonify({'error': 'Invalid input, must provide a nonzero integer rate with key name "freq"'}), 400
     
     interval = get_interval_from_freq(rate)
