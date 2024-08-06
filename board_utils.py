@@ -14,12 +14,14 @@ def send_command(command, device="/dev/ttyACM0", read=False, read_wait=0.5):
         with serial.Serial(device, 115200, timeout=1) as ser:
             # Send the command
             ser.write((command + '\n').encode())
+            time.sleep(1)
             if read:
                 time.sleep(read_wait)  # Wait for the device to process the command
                 response = ser.read_all().decode()
                 return response
             else:
                 return None
+            
     except Exception as e:
         print(e)
         return f"An error occurred: {e}"
@@ -85,19 +87,3 @@ def all_off(leds):
     for led in leds:
         led.off()
 
-def blink_all_three_multiples(interval):
-    all_off(leds)
-    time_lower = interval * (1 / 2)
-    all_on(leds)
-    while True:
-        time.sleep(time_lower)
-        LED1.off() # GPIO.output(LED1, OFF)
-        time.sleep(time_lower)
-        LED1.on() #GPIO.output(LED1, ON)
-        LED2.off() #GPIO.output(LED2, OFF)
-        time.sleep(time_lower)
-        LED1.off() #GPIO.output(LED1, OFF)
-        time.sleep(time_lower)
-        LED1.on() # GPIO.output(LED1, ON)
-        LED2.on() # GPIO.output(LED2, ON)
-        LED3.toggle() #GPIO.output(LED3, not GPIO.input(LED3))
