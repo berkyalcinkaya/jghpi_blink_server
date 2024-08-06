@@ -4,10 +4,30 @@ import threading
 import time
 from utils import board_is_on, triggered_remote, update_json_file, get_json_dict
 from board_utils import send_command, leds, all_off, blink_all_three_multiples, get_interval_from_freq, switch_on
+from board_utils import leds, LED1, LED2, LED3, all_on
 
 RUN_LIGHTS = True # keep as false to test API alone
 thread = None
 stop_event = threading.Event()
+
+
+def blink_all_three_multiples(interval):
+    all_off(leds)
+    time_lower = interval * (1 / 2)
+    all_on(leds)
+    while not stop_event.is_set():
+        time.sleep(time_lower)
+        LED1.off() # GPIO.output(LED1, OFF)
+        time.sleep(time_lower)
+        LED1.on() #GPIO.output(LED1, ON)
+        LED2.off() #GPIO.output(LED2, OFF)
+        time.sleep(time_lower)
+        LED1.off() #GPIO.output(LED1, OFF)
+        time.sleep(time_lower)
+        LED1.on() # GPIO.output(LED1, ON)
+        LED2.on() # GPIO.output(LED2, ON)
+        LED3.toggle() #GPIO.output(LED3, not GPIO.input(LED3))
+    all_off()
 
 app = Flask(__name__)
 
