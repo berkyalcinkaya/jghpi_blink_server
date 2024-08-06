@@ -44,27 +44,36 @@ def handle_blink():
     return jsonify(json_dict), 200
 
 def start_blinking_thread(interval):
-    global thread
+    global thread, stop_event
+    stop_event.clear() 
     thread = threading.Thread(target=blink_all_three_multiples, args=(interval,))
     thread.start()
 
 def stop_blinking_thread():
-    global thread
+    global thread, stop_event
     stop_event.set()
-    thread = None
-
+    if thread is not None:
+        thread.join()
+        thread = None
+        
 @app.route("/off")
 def turn_off():
+    print("Attempting to turn off the board...")  # Debugging line
     if board_is_on():
+        print("Board is currently on.")  # Debugging line
         update_json_file(0, [0,0,0], False)
         stop_blinking_thread()
         all_off(leds)
-    
+        print("All LEDs turned off.")  # Debugging line
+        
         if switch_on():
+            print("On/off switch is still on.")  # Debugging line
             return jsonify({"warning": "on/off switch is on. Turn off on board"}), 200
         else:
-            return "Board Turned Off Successfuly", 200
+            print("Board turned off successfully.")  # Debugging line
+            return "Board Turned Off Successfully", 200
     else:
+        print("Board is already off.")  # Debugging line
         return "Board Already Off", 200
 
 @app.route("/debug")
