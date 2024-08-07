@@ -7,6 +7,7 @@ def blink_pin(interval, LED1,leds):
     """Blink the pin on and off with the given interval."""
     try:
         all_off(leds)
+        time.sleep(1)
         while True:
             LED1.on()
             time.sleep(interval)
@@ -14,7 +15,9 @@ def blink_pin(interval, LED1,leds):
             time.sleep(interval)
     except KeyboardInterrupt:
         print("Keyboard interrupt: turning off lights and closing serial connection")
+        time.sleep(1)
         all_off(leds)
+        time.sleep(1)
         serial_conn.close_connection()
 
 if __name__ == "__main__":
