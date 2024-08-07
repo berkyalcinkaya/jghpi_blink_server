@@ -19,8 +19,9 @@ def send_command_open_comm(command, device="/dev/ttyACM0", read=False, read_wait
         return f"An error occurred: {e}"
     
 class SerialConnection:
-    def __init__(self, device="/dev/ttyACM0", baud_rate=115200, timeout=1, verbose=True, config_commands = ["dio mode DO_G0 source",
+    def __init__(self, device="/dev/ttyACM0", baud_rate=1000000, timeout=1, verbose=True, config_commands = ["dio mode DO_G0 source",
                                                                                                             "dio mode DI_G0 source"]):
+        assert(baud_rate in [115200, 230400, 460800, 921600, 1000000])
         self.device = device
         self.baud_rate = baud_rate
         self.timeout = timeout
@@ -71,15 +72,3 @@ class SerialConnection:
                 print(f"An error occurred while sending command: {e}")
             return f"An error occurred: {e}"
 
-if __name__ == "__main__":
-    serial_conn = SerialConnection(device="/dev/ttyACM0", baud_rate=115200)
-    # Example usage of sending commands
-    serial_conn.send_command("dio mode DO_G0 source")
-    time.sleep(1)  # Adding a short delay between commands
-    response = serial_conn.send_command("dio set DO_G0 0 active", read=True)
-    print(response)
-    time.sleep(1)  # Adding a short delay between commands
-    response = serial_conn.send_command("dio set DO_G0 0 inactive", read=True)
-    print(response)
-    # Close the serial connection when done
-    serial_conn.close_connection()
