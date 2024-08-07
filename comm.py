@@ -19,7 +19,7 @@ def send_command_open_comm(command, device="/dev/ttyACM0", read=False, read_wait
         return f"An error occurred: {e}"
     
 class SerialConnection:
-    def __init__(self, device="/dev/ttyACM0", baud_rate=1000000, timeout=1, verbose=True, config_commands = ["dio mode DO_G0 source",
+    def __init__(self, device="/dev/ttyACM0", baud_rate=115200, timeout=1, verbose=True, config_commands = ["dio mode DO_G0 source",
                                                                                                             "dio mode DI_G0 source"]):
         assert(baud_rate in [115200, 230400, 460800, 921600, 1000000])
         self.device = device
