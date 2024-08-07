@@ -28,11 +28,13 @@ class SerialConnection:
         self.ser = None
         self.v=verbose
         self.open_connection()
+        time.sleep(1)
         if config_commands:
             if self.v:
                 print("Running configuration commands")
             for config_command in config_commands:
                 self.send_command(config_command)
+                time.sleep(1)
 
     def open_connection(self):
         if self.ser is None:
