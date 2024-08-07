@@ -3,10 +3,10 @@ from board_utils import all_off, configure_leds
 import time
 import sys
 
-def blink_pin(interval, LED1):
+def blink_pin(interval, LED1,leds):
     """Blink the pin on and off with the given interval."""
     try:
-        all_off()
+        all_off(leds)
         while True:
             LED1.on()
             time.sleep(interval)
@@ -14,7 +14,7 @@ def blink_pin(interval, LED1):
             time.sleep(interval)
     except KeyboardInterrupt:
         print("Keyboard interrupt: turning off lights and closing serial connection")
-        all_off()
+        all_off(leds)
         serial_conn.close_connection()
 
 if __name__ == "__main__":
@@ -25,4 +25,4 @@ if __name__ == "__main__":
     print("interval: ", blink_interval, "| baud rate:", baud_rate)
     LED1, LED2, LED3, leds, serial_conn = configure_leds(baud_rate)
     time.sleep(0.5)
-    blink_pin(blink_interval, LED1)
+    blink_pin(blink_interval, LED1,leds)
