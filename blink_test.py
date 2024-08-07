@@ -18,7 +18,6 @@ def blink_pin(interval, LED1,leds):
         serial_conn.close_connection()
 
 if __name__ == "__main__":
-    all_off()
     blink_interval = float(sys.argv[-2])  # Blink once a second
     baud_rate = int(sys.argv[-1])
 
