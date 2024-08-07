@@ -12,11 +12,9 @@ def blink_pin(interval, LED1, leds, serial_conn):
             start_time = time.perf_counter()
             
             LED1.on()
-            serial_conn.send_command("dio set DO_G0 0 active")
             time.sleep(interval)
             
             LED1.off()
-            serial_conn.send_command("dio set DO_G0 0 inactive")
             time.sleep(interval)
             
             elapsed_time = time.perf_counter() - start_time
@@ -33,7 +31,8 @@ def blink_pin(interval, LED1, leds, serial_conn):
 if __name__ == "__main__":
     blink_interval = float(sys.argv[-2])  # Blink once a second
     baud_rate = int(sys.argv[-1])
+
     print("interval: ", blink_interval, "| baud rate:", baud_rate)
     LED1, LED2, LED3, leds, serial_conn = configure_leds(baud_rate)
-    time.sleep(0.5)
-    blink_pin(blink_interval, LED1,leds)
+    time.sleep(1)
+    blink_pin(blink_interval, LED1,leds, serial_conn)
