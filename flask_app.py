@@ -3,13 +3,12 @@ import json
 import threading
 import time
 from utils import board_is_on, triggered_remote, update_json_file, get_json_dict
-from board_utils import send_command, leds, all_off, blink_all_three_multiples, get_interval_from_freq, switch_on
+from board_utils import leds, all_off, blink_all_three_multiples, get_interval_from_freq, switch_on
 from board_utils import leds, LED1, LED2, LED3, all_on
 
 RUN_LIGHTS = True # keep as false to test API alone
 thread = None
 stop_event = threading.Event()
-
 
 def blink_all_three_multiples(interval):
     all_off(leds)
@@ -108,7 +107,7 @@ def debug():
         return jsonify({"error": "Error decoding JSON from status.json"}), 500
 
 if __name__ == '__main__':
-    send_command("dio mode DO_G0 source")
+    all_off(leds)
     update_json_file(0, [0,0,0], False)
     app.run(host='0.0.0.0', port=5000)
 
