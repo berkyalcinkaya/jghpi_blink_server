@@ -28,13 +28,23 @@ class SerialConnection:
         self.ser = None
         self.v=verbose
         self.open_connection()
-        time.sleep(1)
+        time.sleep(0.005)
+        self.send_initial_command()
+        time.sleep(0.005)
         if config_commands:
             if self.v:
                 print("Running configuration commands")
             for config_command in config_commands:
                 self.send_command(config_command)
-                time.sleep(0.5)
+                time.sleep(0.005)
+        self.clear_buffer()
+        time.sleep(0.005)
+    
+    def send_initial_command(self):
+        self.ser.write(b"\r\n")
+    
+    def clear_buffer(self):
+        self.ser.read(self.ser.inWaiting())
 
     def open_connection(self):
         if self.ser is None:
@@ -73,4 +83,5 @@ class SerialConnection:
             if self.v:
                 print(f"An error occurred while sending command: {e}")
             return f"An error occurred: {e}"
+ 
 

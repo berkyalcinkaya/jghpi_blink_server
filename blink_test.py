@@ -6,9 +6,11 @@ from board_utils import all_off, all_on, configure_leds
 def blink_pin(interval, LED1, leds, serial_conn):
     """Blink the pin on and off with the given interval."""
     all_off(leds)
-    time.sleep(0.5)
     try:
+        i = 0
         while True:
+            if i and i % 10 == 0:
+                serial_conn.clear_buffer()
             start_time = time.perf_counter()
             
             LED1.on()
@@ -20,6 +22,7 @@ def blink_pin(interval, LED1, leds, serial_conn):
             elapsed_time = time.perf_counter() - start_time
             if elapsed_time < interval * 2:
                 time.sleep(interval * 2 - elapsed_time)
+            i+=1
     except KeyboardInterrupt:
         print("Keyboard interrupt: turning off lights and closing serial connection")
         all_off(leds)

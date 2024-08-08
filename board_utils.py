@@ -60,13 +60,13 @@ def switch_on():
     #return GPIO.input(SWITCH_ON) == ON
     return False
 
-def all_on(leds, sleep=0.05):
+def all_on(leds, sleep=0.005):
     for led in leds:
         led.on()
         time.sleep(sleep)
 
 
-def all_off(leds, sleep=0.05):
+def all_off(leds, sleep=0.005):
     for led in leds:
         led.off()
         time.sleep(sleep)
