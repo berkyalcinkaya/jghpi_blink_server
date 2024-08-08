@@ -32,10 +32,8 @@ def blink_pin(interval, LED1, leds, serial_conn):
 
 def blink_all_three_multiples(interval, leds, serial_conn):
     all_off(leds)
-    time.sleep(0.5)
     time_lower = interval * (1 / 2)
     all_on(leds)
-    time.sleep(0.5)
     try:
         while True:
             time.sleep(time_lower)

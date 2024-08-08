@@ -5,6 +5,7 @@ Berk Yalcinkaya
 
 Contains utility functions to control light blinking
 '''
+import time
 from comm import SerialConnection
     
 class OutPin():
@@ -59,13 +60,16 @@ def switch_on():
     #return GPIO.input(SWITCH_ON) == ON
     return False
 
-def all_on(leds):
+def all_on(leds, sleep=0.05):
     for led in leds:
         led.on()
+        time.sleep(sleep)
 
-def all_off(leds):
+
+def all_off(leds, sleep=0.05):
     for led in leds:
         led.off()
+        time.sleep(sleep)
 
 def configure_leds(baud_rate):
     serial_conn = SerialConnection(baud_rate=baud_rate)
