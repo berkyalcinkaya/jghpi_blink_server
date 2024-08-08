@@ -3,13 +3,15 @@ import sys
 import argparse
 from board_utils import all_off, all_on, configure_leds
 
-def blink_pin(interval, LED1, leds, serial_conn):
+def blink_pin(interval, LED1, leds, serial_conn, command_reset):
     """Blink the pin on and off with the given interval."""
+    NUM_COMMANDS_PER_LOOP = 2
     all_off(leds)
     try:
         i = 0
+        commands = 0
         while True:
-            if i and i % 10 == 0:
+            if commands and commands % command_reset == 0:
                 serial_conn.clear_buffer()
             start_time = time.perf_counter()
             
@@ -23,6 +25,7 @@ def blink_pin(interval, LED1, leds, serial_conn):
             if elapsed_time < interval * 2:
                 time.sleep(interval * 2 - elapsed_time)
             i+=1
+            commands += NUM_COMMANDS_PER_LOOP
     except KeyboardInterrupt:
         print("Keyboard interrupt: turning off lights and closing serial connection")
         all_off(leds)
@@ -65,6 +68,7 @@ if __name__ == "__main__":
     parser.add_argument("interval", type=float, help="Blink interval in seconds")
     parser.add_argument("--baud_rate", type=int, default=115200, help="Baud rate for the serial connection (default: 115200)")
     parser.add_argument("--mode", choices=["single", "multiple"], default="single", help="Blink mode: 'single' for blink_pin or 'multiple' for blink_all_three_multiples (default: single)")
+    parser.add_argument("--reset_every", type=int, default=20, help="number of commands before buffer is reset")
 
     args = parser.parse_args()
 
@@ -73,6 +77,6 @@ if __name__ == "__main__":
     time.sleep(1)
     
     if args.mode == "single":
-        blink_pin(args.interval, LED1, leds, serial_conn)
+        blink_pin(args.interval, LED1, leds, serial_conn, args.reset_every)
     else:
         blink_all_three_multiples(args.interval, leds, serial_conn)
