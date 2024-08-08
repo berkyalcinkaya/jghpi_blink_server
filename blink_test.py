@@ -1,13 +1,13 @@
-from curses import baudrate
-from board_utils import all_off, configure_leds
 import time
 import sys
+import argparse
+from board_utils import all_off, all_on, configure_leds
 
 def blink_pin(interval, LED1, leds, serial_conn):
     """Blink the pin on and off with the given interval."""
+    all_off(leds)
+    time.sleep(0.5)
     try:
-        all_off(leds)
-        time.sleep(1)
         while True:
             start_time = time.perf_counter()
             
@@ -23,16 +23,55 @@ def blink_pin(interval, LED1, leds, serial_conn):
     except KeyboardInterrupt:
         print("Keyboard interrupt: turning off lights and closing serial connection")
         all_off(leds)
+        time.sleep(0.5)
         serial_conn.close_connection()
     except Exception as e:
         print(f"An error occurred in blink_pin: {e}")
+        time.sleep(0.5)
+        serial_conn.close_connection()
+
+def blink_all_three_multiples(interval, leds, serial_conn):
+    all_off(leds)
+    time.sleep(0.5)
+    time_lower = interval * (1 / 2)
+    all_on(leds)
+    time.sleep(0.5)
+    try:
+        while True:
+            time.sleep(time_lower)
+            LED1.off() 
+            time.sleep(time_lower)
+            LED1.on() 
+            LED2.off() 
+            time.sleep(time_lower)
+            LED1.off() 
+            time.sleep(time_lower)
+            LED1.on() 
+            LED2.on() 
+            LED3.toggle() 
+    except KeyboardInterrupt:
+        print("Keyboard interrupt: turning off lights and closing serial connection")
+        all_off(leds)
+        time.sleep(0.5)
+        serial_conn.close_connection()
+    except Exception as e:
+        print(f"An error occurred in blink_pin: {e}")
+        time.sleep(0.5)
         serial_conn.close_connection()
 
 if __name__ == "__main__":
-    blink_interval = float(sys.argv[-2])  # Blink once a second
-    baud_rate = int(sys.argv[-1])
+    parser = argparse.ArgumentParser(description="LED Blinking Script")
+    parser.add_argument("interval", type=float, help="Blink interval in seconds")
+    parser.add_argument("--baud_rate", type=int, default=115200, help="Baud rate for the serial connection (default: 115200)")
+    parser.add_argument("--mode", choices=["single", "multiple"], default="single", help="Blink mode: 'single' for blink_pin or 'multiple' for blink_all_three_multiples (default: single)")
 
-    print("interval: ", blink_interval, "| baud rate:", baud_rate)
-    LED1, LED2, LED3, leds, serial_conn = configure_leds(baud_rate)
+    args = parser.parse_args()
+
+    print("interval: ", args.interval, "| baud rate:", args.baud_rate)
+    LED1, LED2, LED3, leds, serial_conn = configure_leds(args.baud_rate)
     time.sleep(1)
-    blink_pin(blink_interval, LED1,leds, serial_conn)
+    
+    if args.mode == "single":
+        blink_pin(args.interval, LED1, leds, serial_conn)
+    else:
+        blink_all_three_multiples(args.interval, leds, serial_conn)
