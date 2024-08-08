@@ -21,7 +21,7 @@ def send_command_open_comm(command, device="/dev/ttyACM0", read=False, read_wait
 class SerialConnection:
     def __init__(self, device="/dev/ttyACM0", baud_rate=115200, timeout=1, verbose=True, config_commands = ["dio mode DO_G0 source",
                                                                                                             "dio mode DI_G0 source"]):
-        assert(baud_rate in [115200, 230400, 460800, 921600, 1000000])
+        #assert(baud_rate in [115200, 230400, 460800, 921600, 1000000])
         self.device = device
         self.baud_rate = baud_rate
         self.timeout = timeout
@@ -34,7 +34,7 @@ class SerialConnection:
                 print("Running configuration commands")
             for config_command in config_commands:
                 self.send_command(config_command)
-                time.sleep(1)
+                time.sleep(0.5)
 
     def open_connection(self):
         if self.ser is None:
