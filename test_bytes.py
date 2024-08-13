@@ -7,7 +7,7 @@ def construct_num_devices_command():
     header[1] = 0x00  # DIO command kind
     header[2] = 0x00  # Status (not used for sending)
     header[3] = 0x00  # Status (not used for sending)
-    header[4] = 0x01  # Length of command data (1 byte for the action)
+    header[4] = 0x08  # Length of command data (1 byte for the action)
     header[5] = 0x00  # Reserved
     header[6] = 0x00  # Reserved
     header[7] = 0x00  # Reserved
