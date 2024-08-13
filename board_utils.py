@@ -59,7 +59,7 @@ class OutPin():
         header[1] = 0x00  # DIO command kind
         header[2] = 0x00  # Status (for sending command, it's zero)
         header[3] = 0x00  # Status (for sending command, it's zero)
-        header[4] = 0x04  # Length of command data
+        header[4] = 0x08  # Length of command data
         header[5] = 0x00  # Reserved
         header[6] = 0x00  # Reserved
         header[7] = 0x00  # Reserved
