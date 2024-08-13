@@ -23,6 +23,9 @@ class OutPin():
     def toggle_byte_mode(self):
         self.byte_mode = not self.byte_mode
 
+        if self.byte_mode:
+            self.ser.send_command("byte_mode", byte_mode=False)
+
     def on(self):
         if self.byte_mode:
             command = self.construct_byte_command(action=0x01, state=1)

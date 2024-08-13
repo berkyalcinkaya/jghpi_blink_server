@@ -63,7 +63,7 @@ class SerialConnection:
             if self.v:
                 print("Serial connection closed.")
 
-    def send_command(self, command, byte_mode=False, read=True, read_wait=0.5):
+    def send_command(self, command, byte_mode=False, read=False, read_wait=0.5):
         if self.ser is None:
             if self.v:
                 print("Serial connection is not open.")
@@ -82,7 +82,6 @@ class SerialConnection:
             if read:
                 time.sleep(read_wait)
                 response = self.ser.read_all().decode()
-                print("RESPONSE", response)
                 return response
             else:
                 return None
