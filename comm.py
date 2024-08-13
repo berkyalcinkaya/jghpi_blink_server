@@ -63,19 +63,25 @@ class SerialConnection:
             if self.v:
                 print("Serial connection closed.")
 
-    def send_command(self, command, read=False, read_wait=0.5):
+    def send_command(self, command, byte_mode=False, read=False, read_wait=0.5):
         if self.ser is None:
             if self.v:
                 print("Serial connection is not open.")
             return None
-        
-        if self.v:
-            print(f"Sending command: {command}")
+
         try:
-            self.ser.write((command + '\n').encode())
+            if byte_mode:
+                if self.v:
+                    print(f"Sending byte command: {command}")
+                self.ser.write(command)
+            else:
+                if self.v:
+                    print(f"Sending command: {command}")
+                self.ser.write((command + '\n').encode())
+
             if read:
-                time.sleep(read_wait)  # Wait for the device to process the command
-                response = self.ser.read_all().decode()  # Read all available data
+                time.sleep(read_wait)
+                response = self.ser.read_all().decode()
                 return response
             else:
                 return None
