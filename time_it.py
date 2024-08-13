@@ -26,8 +26,6 @@ def measure_round_trip_time(serial_connection, led_pin, byte_mode=False, sleep =
 if __name__ == "__main__":
     # Initialize the SerialConnection
     serial_conn = SerialConnection(device="/dev/ttyACM0", baud_rate=115200, timeout=1, verbose=True)
-    
-    # Initialize an LED pin (example pin number 0) in regular mode
     led_pin = OutPin(pin=0, serial_connection=serial_conn, group=0, v=True, byte_mode=False)
     measure_round_trip_time(serial_connection=serial_conn, led_pin=led_pin, byte_mode=False)
     time.sleep(1)
