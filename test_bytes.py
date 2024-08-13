@@ -25,6 +25,8 @@ def construct_num_devices_command():
 if __name__ == "__main__":
     # Initialize the SerialConnection
     serial_conn = SerialConnection(device="/dev/ttyACM0", baud_rate=115200, timeout=1, verbose=True)
+    r = serial_conn.send_command("byte_mode", read=True)
+    print(r)
     
     # Construct the command to get the number of devices
     command = construct_num_devices_command()
