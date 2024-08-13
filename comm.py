@@ -82,6 +82,7 @@ class SerialConnection:
             if read:
                 time.sleep(read_wait)
                 response = self.ser.read_all().decode()
+                print("RESPONSE", response)
                 return response
             else:
                 return None
