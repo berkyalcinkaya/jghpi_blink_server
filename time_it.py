@@ -31,12 +31,15 @@ if __name__ == "__main__":
     
     # Measure round-trip times in regular mode
     measure_round_trip_time(serial_connection=serial_conn, led_pin=led_pin_regular, byte_mode=False)
+    time.sleep(1)
 
     # Initialize an LED pin (example pin number 0) in byte mode
     led_pin_byte = OutPin(pin=0, serial_connection=serial_conn, group=0, v=True, byte_mode=True)
+    time.sleep(1)
     
     # Measure round-trip times in byte mode
     measure_round_trip_time(serial_connection=serial_conn, led_pin=led_pin_byte, byte_mode=True)
+    time.sleep(1)
 
     # Close the serial connection when done
     serial_conn.close_connection()
