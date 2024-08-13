@@ -19,6 +19,9 @@ class OutPin():
 
         if v:
             print("initiating pin", self.pin_num, "on DO_G0")
+    
+    def toggle_byte_mode(self):
+        self.byte_mode = not self.byte_mode
 
     def on(self):
         if self.byte_mode:
