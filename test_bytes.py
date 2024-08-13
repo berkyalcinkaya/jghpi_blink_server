@@ -31,16 +31,17 @@ if __name__ == "__main__":
     
     # Send the command and receive the response
     response = serial_conn.send_command(command, byte_mode=True, read=True)
+    print(response)
     
-    # Parse the response to get the number of devices (if applicable)
-    if response and len(response) >= 8:
-        # The response should include the status and the number of devices
-        status = int.from_bytes(response[2:4], byteorder='little')
-        num_devices = response[8]
-        if status == 0x0000:  # Check if the command was successful
-            print(f"Number of DIO banks available: {num_devices}")
-        else:
-            print(f"Command failed with status code: {status:#04x}")
+    # # Parse the response to get the number of devices (if applicable)
+    # if response and len(response) >= 8:
+    #     # The response should include the status and the number of devices
+    #     status = int.from_bytes(response[2:4], byteorder='little')
+    #     num_devices = response[8]
+    #     if status == 0x0000:  # Check if the command was successful
+    #         print(f"Number of DIO banks available: {num_devices}")
+    #     else:
+    #         print(f"Command failed with status code: {status:#04x}")
     
     # Close the serial connection
     serial_conn.close_connection()
