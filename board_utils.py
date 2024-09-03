@@ -43,7 +43,7 @@ class OutPin():
             self.on()
 
 def get_interval_from_rate(rate):
-    return (1/rate)*60
+    return (1/rate)
 
 def get_freq_from_switches():
     intrvl = get_interval_from_rate()

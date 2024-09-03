@@ -6,7 +6,7 @@ from utils import board_is_on, triggered_remote, update_json_file, get_json_dict
 from board_utils import all_off, get_interval_from_rate, switch_on, all_on, all_on_pwm, configure_leds
 
 BAUD_RATE = 115200
-PWM_SLEEP = 0.001
+PWM_SLEEP = 0.005
 LED1, LED2, LED3, leds, serial_conn = configure_leds(BAUD_RATE) # leds = [LED1, LED2, LED3]
 
 RUN_LIGHTS = True # keep as false to test API alone
@@ -56,7 +56,7 @@ def test_fps():
     period_micro_lst = [int(seconds * 1000000) for seconds in period_lst]
 
     update_json_file(1, freqs, True)
-    message+=f"Testing Frame Rate: {str(rate)} fps | Blink Frequencies (Hz) Top to Bottom: {','.join([str(freq) for freq in freqs])} | Blink Periods (s): {','.join([str(i) for i in period_micro_lst])} | Blink Periods (us): {','.join([str(i) for i in period_lst])}"
+    message+=f"Testing Frame Rate: {str(rate)} fps | Blink Frequencies (Hz) Top to Bottom: {','.join([str(freq) for freq in freqs])} | Blink Periods (s): {','.join([str(i) for i in period_lst])} | Blink Periods (us): {','.join([str(i) for i in period_micro_lst])}"
 
     if RUN_LIGHTS:
         start_blinking_thread(period_micro_lst)
