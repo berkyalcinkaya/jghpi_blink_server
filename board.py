@@ -33,6 +33,8 @@ switch_state_on = switch_on()
 while True:
     last_switch_state = switch_state_on
     switch_state_on = switch_on()
+    if switch_state_on:
+        print("ON")
     switch_toggled = last_switch_state != switch_state_on
     if switch_toggled:
         print("switch has been toggled")
