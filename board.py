@@ -6,14 +6,13 @@ Berk Yalcinkaya
 One of two scripts that the Rasberry Pi will always run. Detects changes in the on/off switch and calls
 API to start blinking based on upper three switches to determine fps to test
 '''
-import RPi.GPIO as GPIO  # sudo apt-get install python3-rpi.gpio
 import threading
 import time
 from board_utils import LED1, LED2, LED3, get_rate_from_switches, switch_on
 from utils import board_is_on
 import requests
 
-BASE_URL = "http://10.2.66.60:5000"
+BASE_URL = "http://10.2.65.146:5000"
 
 # Event to stop threads
 stop_event = threading.Event()

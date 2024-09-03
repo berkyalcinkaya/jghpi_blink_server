@@ -3,12 +3,11 @@ import json
 import threading
 import time
 from utils import board_is_on, triggered_remote, update_json_file, get_json_dict
-from board_utils import all_off, get_interval_from_rate, switch_on, all_on, all_on_pwm, configure_leds
+from board_utils import (all_off, get_interval_from_rate, switch_on, all_on, all_on_pwm, configure_leds, 
+                         LED1, LED2, LED3, leds, serial_conn)
 
 BAUD_RATE = 115200
 PWM_SLEEP = 0.005
-LED1, LED2, LED3, leds, serial_conn = configure_leds(BAUD_RATE) # leds = [LED1, LED2, LED3]
-
 RUN_LIGHTS = True # keep as false to test API alone
 thread = None
 stop_event = threading.Event()

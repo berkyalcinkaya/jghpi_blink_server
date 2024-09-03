@@ -22,7 +22,7 @@ def configure_leds(baud_rate):
     leds = [LED1, LED2, LED3]
     return LED1, LED2, LED3, SWITCH_ON, SWITCH_50, SWITCH_100, SWITCH_200, leds, serial_conn
 
-LED1, LED2, LED3, SWITCH_ON, SWITCH_50, SWITCH_100, SWITCH_200, leds, serial_conn = configure_leds()
+LED1, LED2, LED3, SWITCH_ON, SWITCH_50, SWITCH_100, SWITCH_200, leds, serial_conn = configure_leds(115200)
 
 class InPin():
     def __init__(self, pin, serial_connection, group=0, v=True):
