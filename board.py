@@ -44,4 +44,5 @@ while True:
                 print("turning on via api")
                 turn_on_blink_via_api(rate)
         elif (not switch_on()) and board_is_on():
+            print("turning off board via API")
             turn_off_blink_via_api()
