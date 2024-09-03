@@ -46,12 +46,14 @@ def test_fps():
     interval = get_interval_from_rate(rate)
     #period = 2*interval
     intrvl_lst = [interval/2, interval, interval*2]
-    period_lst = [str(i*2) for i in intrvl_lst]
+    period_lst = [i*2 for i in intrvl_lst]
+    period_micro_lst = [seconds * 1000000 for seconds in period_lst]
+
     update_json_file(1, intrvl_lst, True)
-    message+=f"Testing Frame Rate: {str(rate)} fps | Blink Frequencies (Hz): {str(freq/2)}, {str(freq)}, {str(freq*2)} | Blink Periods (s): {','.join(period_lst)}"
+    message+=f"Testing Frame Rate: {str(rate)} fps | Blink Frequencies (Hz): {str(freq/2)}, {str(freq)}, {str(freq*2)} | Blink Periods (s): {','.join([str(i) for i in period_lst])}"
 
     if RUN_LIGHTS:
-        start_blinking_thread(period_lst)
+        start_blinking_thread(period_micro_lst)
     
     json_dict = get_json_dict() 
     if message:
