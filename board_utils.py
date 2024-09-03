@@ -41,11 +41,11 @@ class OutPin():
         else:
             self.on()
 
-def get_interval_from_freq(freq):
-    return 1/freq
+def get_interval_from_rate(rate):
+    return 1/rate
 
 def get_freq_from_switches():
-    intrvl = get_interval_from_freq()
+    intrvl = get_interval_from_rate()
     if intrvl:
         return 1/intrvl
     return None

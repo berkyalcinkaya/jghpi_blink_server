@@ -3,24 +3,27 @@ import json
 import threading
 import time
 from utils import board_is_on, triggered_remote, update_json_file, get_json_dict
-from board_utils import leds, all_off, blink_all_three_multiples, get_interval_from_freq, switch_on
-from board_utils import leds, LED1, LED2, LED3, all_on
+from board_utils import all_off, get_interval_from_rate, switch_on, all_on, all_on_pwm, configure_leds
+
+BAUD_RATE = 115200
+PWM_SLEEP = None
+LED1, LED2, LED3, leds, serial_conn = configure_leds(BAUD_RATE)
 
 RUN_LIGHTS = True # keep as false to test API alone
 thread = None
 stop_event = threading.Event()
 
-def blink_all_three_multiples(interval):
+def blink_all_three_multiples(periods):
     all_off(leds)
-    all_on(leds)
+    all_on_pwm(leds, periods, sleep=PWM_SLEEP)
     while not stop_event.is_set():
         continue
-    all_off()
+    all_off(leds)
 
 app = Flask(__name__)
 
 @app.route('/blink', methods=['POST'])
-def handle_blink():
+def test_fps():
     message = ""
     if board_is_on() and not triggered_remote():
         #return jsonify({'error': 'Board is on from the controller. Contact site to turn board off'}), 400
@@ -30,7 +33,7 @@ def handle_blink():
     
     data = request.json
     print(data)
-    rate = data.get('freq')
+    rate = data.get('rate')
     try:
         rate = float(rate)
     except:
@@ -39,22 +42,26 @@ def handle_blink():
     if rate is None or not isinstance(rate, float) or rate == 0:
         return jsonify({'error': 'Invalid input, must provide a nonzero integer rate with key name "freq"'}), 400
     
-    interval = 2*get_interval_from_freq(rate)
+    freq = rate/2
+    interval = get_interval_from_rate(rate)
+    #period = 2*interval
     intrvl_lst = [interval/2, interval, interval*2]
+    period_lst = [i*2 for i in intrvl_lst]
     update_json_file(1, intrvl_lst, True)
+    message+=f"Testing Frame Rate: {rate} fps | Blink Frequencies (Hz): {freq/2}, {freq}, {freq*2} | Blink Periods (s): {','.join(period_lst)}"
 
     if RUN_LIGHTS:
-        start_blinking_thread(interval)
+        start_blinking_thread(period_lst)
     
     json_dict = get_json_dict() 
     if message:
         json_dict["message"] = message
     return jsonify(json_dict), 200
 
-def start_blinking_thread(interval):
+def start_blinking_thread(period_lst):
     global thread, stop_event
     stop_event.clear() 
-    thread = threading.Thread(target=blink_all_three_multiples, args=(interval,))
+    thread = threading.Thread(target=blink_all_three_multiples, args=(period_lst,))
     thread.start()
 
 def stop_blinking_thread():
