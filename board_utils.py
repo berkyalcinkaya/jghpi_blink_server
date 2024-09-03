@@ -9,7 +9,7 @@ import time
 from comm import SerialConnection
 
 class OutPin():
-    def __init__(self, pin, serial_connection, group=0, v=True):
+    def __init__(self, pin, serial_connection, group=0, v=True, byte_mode=False):
         self.pin_num = int(pin)
         self.group_num = group
         self.type = "DO"
@@ -17,6 +17,7 @@ class OutPin():
         self.ser = serial_connection
         if v:
             print("initiating pin", self.pin_num, "on DO_G0")
+        self.byte_mode = byte_mode
 
     def on(self, pwm=True, period=1000, duty=50):
         if pwm:
