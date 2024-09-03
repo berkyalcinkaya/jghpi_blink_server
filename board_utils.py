@@ -22,8 +22,6 @@ def configure_leds(baud_rate):
     leds = [LED1, LED2, LED3]
     return LED1, LED2, LED3, SWITCH_ON, SWITCH_50, SWITCH_100, SWITCH_200, leds, serial_conn
 
-LED1, LED2, LED3, SWITCH_ON, SWITCH_50, SWITCH_100, SWITCH_200, leds, serial_conn = configure_leds(115200)
-
 class InPin():
     def __init__(self, pin, serial_connection, group=0, v=True):
         self.pin_num = int(pin)
@@ -111,3 +109,5 @@ def all_off(leds, sleep=0.005):
         led.off()
         if sleep:
             time.sleep(sleep)
+
+LED1, LED2, LED3, SWITCH_ON, SWITCH_50, SWITCH_100, SWITCH_200, leds, serial_conn = configure_leds(115200)
