@@ -23,6 +23,16 @@ def measure_round_trip_time(serial_connection, led_pin, byte_mode=False, sleep =
 
     return round_trip_time_on, round_trip_time_off
 
+def measure_round_trip(serial_conn):
+    start_time = time.time()
+    serial_conn.send_command("dio pwm DO_G0 0 10000 50")
+    end_time = time.time()
+    round_trip_time_on = end_time - start_time
+    print(f"Round-trip time for turning LED ON in pwm: {round_trip_time_on:.6f} seconds")
+    time.sleep(1)
+    serial_conn.send_command("dio set DO_G0 0 inactive")
+
+
 if __name__ == "__main__":
     # Initialize the SerialConnection
     serial_conn = SerialConnection(device="/dev/ttyACM0", baud_rate=115200, timeout=1, verbose=True)

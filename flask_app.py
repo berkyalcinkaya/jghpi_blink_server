@@ -12,20 +12,9 @@ stop_event = threading.Event()
 
 def blink_all_three_multiples(interval):
     all_off(leds)
-    time_lower = interval * (1 / 2)
     all_on(leds)
     while not stop_event.is_set():
-        time.sleep(time_lower)
-        LED1.off() # GPIO.output(LED1, OFF)
-        time.sleep(time_lower)
-        LED1.on() #GPIO.output(LED1, ON)
-        LED2.off() #GPIO.output(LED2, OFF)
-        time.sleep(time_lower)
-        LED1.off() #GPIO.output(LED1, OFF)
-        time.sleep(time_lower)
-        LED1.on() # GPIO.output(LED1, ON)
-        LED2.on() # GPIO.output(LED2, ON)
-        LED3.toggle() #GPIO.output(LED3, not GPIO.input(LED3))
+        continue
     all_off()
 
 app = Flask(__name__)
@@ -50,7 +39,7 @@ def handle_blink():
     if rate is None or not isinstance(rate, float) or rate == 0:
         return jsonify({'error': 'Invalid input, must provide a nonzero integer rate with key name "freq"'}), 400
     
-    interval = get_interval_from_freq(rate)
+    interval = 2*get_interval_from_freq(rate)
     intrvl_lst = [interval/2, interval, interval*2]
     update_json_file(1, intrvl_lst, True)
 

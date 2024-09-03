@@ -9,26 +9,18 @@ import time
 from comm import SerialConnection
 
 class OutPin():
-    def __init__(self, pin, serial_connection, group=0, v=True, byte_mode=True):
+    def __init__(self, pin, serial_connection, group=0, v=True):
         self.pin_num = int(pin)
         self.group_num = group
         self.type = "DO"
         self.is_on = False
         self.ser = serial_connection
-        self.byte_mode = byte_mode
-
         if v:
             print("initiating pin", self.pin_num, "on DO_G0")
-    
-    def toggle_byte_mode(self):
-        self.byte_mode = not self.byte_mode
 
-        if self.byte_mode:
-            self.ser.send_command("byte_mode", byte_mode=False)
-
-    def on(self):
-        if self.byte_mode:
-            command = self.construct_byte_command(action=0x01, state=1)
+    def on(self, pwm=True, period=1000, duty=50):
+        if pwm:
+            command = f"dio pwm DO_G{self.group_num} {self.pin_num} {period} {duty}"
         else:
             command = f"dio set {self.type}_G{self.group_num} {self.pin_num} active"
         
@@ -37,10 +29,7 @@ class OutPin():
         self.is_on = True
 
     def off(self):
-        if self.byte_mode:
-            command = self.construct_byte_command(action=0x01, state=0)
-        else:
-            command = f"dio set {self.type}_G{self.group_num} {self.pin_num} inactive"
+        command = f"dio set {self.type}_G{self.group_num} {self.pin_num} inactive"
         
         self.ser.send_command(command, byte_mode=self.byte_mode)
         self.is_on = False
@@ -51,30 +40,6 @@ class OutPin():
             self.off()
         else:
             self.on()
-
-    def construct_byte_command(self, action, state):
-        # Constructing the byte command header
-        header = bytearray(8)
-        header[0] = 0x01  # Start of frame
-        header[1] = 0x00  # DIO command kind
-        header[2] = 0x00  # Status (for sending command, it's zero)
-        header[3] = 0x00  # Status (for sending command, it's zero)
-        header[4] = 0x08  # Length of command data
-        header[5] = 0x00  # Reserved
-        header[6] = 0x00  # Reserved
-        header[7] = 0x00  # Reserved
-
-        # Constructing the command body
-        body = bytearray(8)
-        body[0] = action  # Action: Set (0x01)
-        body[1] = self.group_num  # Target group/bank
-        body[2] = self.pin_num  # Pin index
-        body[3] = state  # State: 0 for off, 1 for on
-        # Bytes 4-7 for edge count (not needed for set, so set to 0)
-        body[4:8] = (0).to_bytes(4, byteorder='little')
-
-        return header + body
-
 
 def get_interval_from_freq(freq):
     return 1/freq
@@ -101,13 +66,20 @@ def switch_on():
 def all_on(leds, sleep=0.005):
     for led in leds:
         led.on()
-        time.sleep(sleep)
+        if sleep:
+            time.sleep(sleep)
 
+def all_on_pwm(leds, periods, sleep=0.005):
+    for led, period in zip(leds, periods):
+        led.on(pwm=True, period=period, duty=50)
+        if sleep:
+            time.sleep(sleep)
 
 def all_off(leds, sleep=0.005):
     for led in leds:
         led.off()
-        time.sleep(sleep)
+        if sleep:
+            time.sleep(sleep)
 
 def configure_leds(baud_rate):
     serial_conn = SerialConnection(baud_rate=baud_rate)
