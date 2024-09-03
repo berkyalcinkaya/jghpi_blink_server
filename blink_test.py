@@ -15,7 +15,7 @@ def blink_pin(interval, LED1, leds, serial_conn, command_reset):
         i = 0
         commands = 0
         while True:
-            if commands and commands % command_reset == 0:
+            if command_reset and (commands and commands % command_reset == 0):
                 serial_conn.clear_buffer()
             start_time = time.perf_counter()
             
