@@ -37,6 +37,7 @@ while True:
     if switch_toggled:
         print("switch has been toggled")
         if switch_on() and not board_is_on():
+            print("getting rate from switches")
             rate = get_rate_from_switches()
             if rate:
                 print("got rate ", rate, "from switches")
