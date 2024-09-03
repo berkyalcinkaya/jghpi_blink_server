@@ -8,6 +8,22 @@ Contains utility functions to control light blinking
 import time
 from comm import SerialConnection
 
+def configure_leds(baud_rate):
+    serial_conn = SerialConnection(baud_rate=baud_rate)
+    LED1 = OutPin(0, serial_conn)
+    LED2 = OutPin(1, serial_conn)
+    LED3 = OutPin(2, serial_conn)
+
+    SWITCH_ON = InPin(0, serial_conn)
+    SWITCH_50 = InPin(1, serial_conn)
+    SWITCH_100 = InPin(2, serial_conn)
+    SWITCH_200 = InPin(3, serial_conn)
+
+    leds = [LED1, LED2, LED3]
+    return LED1, LED2, LED3, SWITCH_ON, SWITCH_50, SWITCH_100, SWITCH_200, leds, serial_conn
+
+LED1, LED2, LED3, SWITCH_ON, SWITCH_50, SWITCH_100, SWITCH_200, leds, serial_conn = configure_leds()
+
 class InPin():
     def __init__(self, pin, serial_connection, group=0, v=True):
         self.pin_num = int(pin)
@@ -66,24 +82,17 @@ class OutPin():
 def get_interval_from_rate(rate):
     return (1/rate)
 
-def get_freq_from_switches():
-    intrvl = get_interval_from_rate()
-    if intrvl:
-        return 1/intrvl
-    return None
-
-def get_interval_from_switches():
-    # if GPIO.input(SWITCH_200) == ON:
-    #     return 1 / 200
-    # if GPIO.input(SWITCH_100) == ON:
-    #     return 1/ 100
-    # if GPIO.input(SWITCH_50) == ON:
-    #     return 1 / 50
+def get_rate_from_switches():
+    if SWITCH_50.is_on():
+        return 50
+    if SWITCH_100.is_on():
+        return 100
+    if SWITCH_200.is_on():
+        return 200
     return None
 
 def switch_on():
-    #return GPIO.input(SWITCH_ON) == ON
-    return False
+    return SWITCH_ON.is_on()
 
 def all_on(leds, sleep=0.005):
     for led in leds:
@@ -102,15 +111,3 @@ def all_off(leds, sleep=0.005):
         led.off()
         if sleep:
             time.sleep(sleep)
-
-def configure_leds(baud_rate):
-    serial_conn = SerialConnection(baud_rate=baud_rate)
-    LED1 = OutPin(0, serial_conn)
-    LED2 = OutPin(1, serial_conn)
-    LED3 = OutPin(2, serial_conn)
-
-    SWITCH_ON = 
-
-
-    leds = [LED1, LED2, LED3]
-    return LED1, LED2, LED3, leds, serial_conn
