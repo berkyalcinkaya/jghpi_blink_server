@@ -8,6 +8,27 @@ Contains utility functions to control light blinking
 import time
 from comm import SerialConnection
 
+class InPin():
+    def __init__(self, pin, serial_connection, group=0, v=True):
+        self.pin_num = int(pin)
+        self.group_num = group
+        self.type = "DI"
+        self.ser = serial_connection
+        self.v = v
+        if v:
+            print("initiating pin", self.pin_num, "on DI_G0")
+    
+    def is_on(self):
+        command = f"dio get {self.type}_G{self.group_num} input {self.pin_num}"
+        response = self.ser.send_command(command, read=True)
+
+        if self.v:
+            print(response)
+
+        if response == "1":
+            return True
+        return False
+
 class OutPin():
     def __init__(self, pin, serial_connection, group=0, v=True, byte_mode=False):
         self.pin_num = int(pin)
@@ -87,5 +108,9 @@ def configure_leds(baud_rate):
     LED1 = OutPin(0, serial_conn)
     LED2 = OutPin(1, serial_conn)
     LED3 = OutPin(2, serial_conn)
+
+    SWITCH_ON = 
+
+
     leds = [LED1, LED2, LED3]
     return LED1, LED2, LED3, leds, serial_conn
