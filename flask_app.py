@@ -56,7 +56,7 @@ def test_fps():
     period_micro_lst = [int(seconds * 1000000) for seconds in period_lst]
 
     update_json_file(1, freqs, True)
-    message+=f"Testing Frame Rate: {str(rate)} fps | Blink Frequencies (Hz) Top to Bottom: {','.join([str(freq) for freq in freqs])} | Blink Periods (s): {','.join([str(i) for i in period_lst])}"
+    message+=f"Testing Frame Rate: {str(rate)} fps | Blink Frequencies (Hz) Top to Bottom: {','.join([str(freq) for freq in freqs])} | Blink Periods (s): {','.join([str(i) for i in period_micro_lst])} | Blink Periods (us): {','.join([str(i) for i in period_lst])}"
 
     if RUN_LIGHTS:
         start_blinking_thread(period_micro_lst)
