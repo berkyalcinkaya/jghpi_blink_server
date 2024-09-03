@@ -39,8 +39,8 @@ while True:
         if switch_on() and not board_is_on():
             print("getting rate from switches")
             rate = get_rate_from_switches()
+            print("got rate ", rate, "from switches")
             if rate:
-                print("got rate ", rate, "from switches")
                 print("turning on via api")
                 turn_on_blink_via_api(rate)
         elif (not switch_on()) and board_is_on():
