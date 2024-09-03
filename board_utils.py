@@ -35,13 +35,11 @@ class InPin():
     def is_on(self):
         command = f"dio get {self.type}_G{self.group_num} input {self.pin_num}"
         response = self.ser.send_command(command, read=True)
-
-
         response_int = int(response.split("\n")[-2])
 
         print(response_int)
 
-        if response_int == "1":
+        if response_int == 1:
             return True
         return False
 
