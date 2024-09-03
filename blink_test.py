@@ -19,7 +19,7 @@ def blink_pin(interval, LED1, leds, serial_conn, command_reset):
                 serial_conn.clear_buffer()
             start_time = time.perf_counter()
             
-            LED1.on()
+            LED1.on(pwm=False)
             time.sleep(interval)
             
             LED1.off()
@@ -54,13 +54,13 @@ def blink_all_three_multiples(interval, LED1, LED2, LED3, leds, serial_conn, com
             time.sleep(interval)
             LED1.off() 
             time.sleep(interval)
-            LED1.on() 
+            LED1.on(pwm=False) 
             LED2.off() 
             time.sleep(interval)
             LED1.off() 
             time.sleep(interval)
-            LED1.on() 
-            LED2.on() 
+            LED1.on(pwm=False) 
+            LED2.on(pwm=False) 
             LED3.toggle() 
 
             elapsed_time = time.perf_counter() - start_time
@@ -98,7 +98,7 @@ if __name__ == "__main__":
     
     print("freq: ", freq, "Hz (fastest light) | interval: ", interval, "| baud rate:", args.baud_rate)
     time.sleep(5)
-    
+
     LED1, LED2, LED3, leds, serial_conn = configure_leds(args.baud_rate)
     time.sleep(0.05)
 
