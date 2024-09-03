@@ -47,7 +47,7 @@ def blink_all_three_multiples(interval, LED1, LED2, LED3, leds, serial_conn, com
         i = 0
         commands = 0
         while True:
-            if commands and commands % command_reset == 0:
+            if command_reset and (commands and commands % command_reset == 0):
                 serial_conn.clear_buffer()
             start_time = time.perf_counter()
             
@@ -88,33 +88,38 @@ if __name__ == "__main__":
     parser.add_argument("interval", type=float, help="Blink interval in seconds")
     parser.add_argument("--baud_rate", type=int, default=115200, help="Baud rate for the serial connection (default: 115200)")
     parser.add_argument("--mode", choices=["single", "multiple"], default="single", help="Blink mode: 'single' for blink_pin or 'multiple' for blink_all_three_multiples (default: single)")
-    parser.add_argument("--reset_every", type=int, default=20, help="Number of commands before buffer is reset")
+    parser.add_argument("--reset_every", type=int, default=None, help="Number of commands before buffer is reset (default: None)")
 
     args = parser.parse_args()
     reset_every = args.reset_every
     interval = args.interval
 
     rate, freq = get_freq_fps_from_interval(interval)
+    
     print("freq: ", freq, "Hz (fastest light) | interval: ", interval, "| baud rate:", args.baud_rate)
     time.sleep(5)
+    
     LED1, LED2, LED3, leds, serial_conn = configure_leds(args.baud_rate)
     time.sleep(0.05)
 
     if args.mode == "single":
-        if reset_every % NUM_COMMANDS_PER_LOOP_SINGLE != 0:
-            raise ValueError(f"reset_every must be a multiple of {NUM_COMMANDS_PER_LOOP_SINGLE} for single mode")
 
-        iterations = reset_every / NUM_COMMANDS_PER_LOOP_SINGLE
-        time_to_reset = iterations * (TIME_FACTOR_SINGLE * interval)
-        print("\n---TIME TO RESET:", time_to_reset, "seconds ----------\n")
-        time.sleep(5)
+        if reset_every:
+            if reset_every % NUM_COMMANDS_PER_LOOP_SINGLE != 0:
+                raise ValueError(f"reset_every must be a multiple of {NUM_COMMANDS_PER_LOOP_SINGLE} for single mode")
+
+            iterations = reset_every / NUM_COMMANDS_PER_LOOP_SINGLE
+            time_to_reset = iterations * (TIME_FACTOR_SINGLE * interval)
+            print("\n---TIME TO RESET:", time_to_reset, "seconds ----------\n")
+            time.sleep(5)
         blink_pin(interval, LED1, leds, serial_conn, reset_every)
     else:
-        if reset_every % NUM_COMMANDS_PER_LOOP_MULTIPLE != 0:
-            raise ValueError(f"reset_every must be a multiple of {NUM_COMMANDS_PER_LOOP_MULTIPLE} for multiple mode")
+        if reset_every:
+            if reset_every % NUM_COMMANDS_PER_LOOP_MULTIPLE != 0:
+                raise ValueError(f"reset_every must be a multiple of {NUM_COMMANDS_PER_LOOP_MULTIPLE} for multiple mode")
 
-        iterations = reset_every / NUM_COMMANDS_PER_LOOP_MULTIPLE
-        time_to_reset = iterations * (TIME_FACTOR_MULTIPLE * (interval))
-        print("\n---TIME TO RESET:", time_to_reset, "seconds ----------\n")
-        time.sleep(5)
+            iterations = reset_every / NUM_COMMANDS_PER_LOOP_MULTIPLE
+            time_to_reset = iterations * (TIME_FACTOR_MULTIPLE * (interval))
+            print("\n---TIME TO RESET:", time_to_reset, "seconds ----------\n")
+            time.sleep(5)
         blink_all_three_multiples(interval, LED1, LED2, LED3, leds, serial_conn, reset_every)
