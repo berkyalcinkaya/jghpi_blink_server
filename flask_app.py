@@ -7,7 +7,7 @@ from board_utils import all_off, get_interval_from_rate, switch_on, all_on, all_
 
 BAUD_RATE = 115200
 PWM_SLEEP = None
-LED1, LED2, LED3, leds, serial_conn = configure_leds(BAUD_RATE)
+LED1, LED2, LED3, leds, serial_conn = configure_leds(BAUD_RATE) # leds = [LED1, LED2, LED3]
 
 RUN_LIGHTS = True # keep as false to test API alone
 thread = None
@@ -42,15 +42,24 @@ def test_fps():
     if rate is None or not isinstance(rate, float) or rate == 0:
         return jsonify({'error': 'Invalid input, must provide a nonzero integer rate with key name "freq"'}), 400
     
-    freq = rate/2
-    interval = get_interval_from_rate(rate)
-    #period = 2*interval
-    intrvl_lst = [interval/2, interval, interval*2]
-    period_lst = [i*2 for i in intrvl_lst]
-    period_micro_lst = [seconds * 1000000 for seconds in period_lst]
+    # pin 0 is top: fastest
+    # pin 1 is middle: target freq
+    # pin 2 is bottom: slowest
 
-    update_json_file(1, intrvl_lst, True)
-    message+=f"Testing Frame Rate: {str(rate)} fps | Blink Frequencies (Hz): {str(freq/2)}, {str(freq)}, {str(freq*2)} | Blink Periods (s): {','.join([str(i) for i in period_lst])}"
+    freq = rate/2
+    freqs = [freq*2, freq, freq/2]
+    
+    interval = get_interval_from_rate(rate)
+    intrvl_lst = [interval/2, interval, interval*2] # smallest interval first, highest freq
+    
+    period_lst = [i*2 for i in intrvl_lst]
+    period_micro_lst = [int(seconds * 1000000) for seconds in period_lst]
+
+    update_json_file(1, freqs, True)
+    message+=f'''
+    Testing Frame Rate: {str(rate)} fps 
+    | Blink Frequencies (Hz) Top to Bottom: {','.join([str(freq) for freq in freqs])} 
+    | Blink Periods (s): {','.join([str(i) for i in period_lst])}'''
 
     if RUN_LIGHTS:
         start_blinking_thread(period_micro_lst)
