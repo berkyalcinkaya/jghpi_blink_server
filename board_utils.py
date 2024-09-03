@@ -23,7 +23,7 @@ def configure_leds(baud_rate):
     return LED1, LED2, LED3, SWITCH_ON, SWITCH_50, SWITCH_100, SWITCH_200, leds, serial_conn
 
 class InPin():
-    def __init__(self, pin, serial_connection, group=0, v=True):
+    def __init__(self, pin, serial_connection, group=0, v=False):
         self.pin_num = int(pin)
         self.group_num = group
         self.type = "DI"
