@@ -36,8 +36,7 @@ class InPin():
         command = f"dio get {self.type}_G{self.group_num} input {self.pin_num}"
         response = self.ser.send_command(command, read=True)
 
-        if self.v:
-            print(response)
+        print(response)
 
         if response == "1":
             return True
