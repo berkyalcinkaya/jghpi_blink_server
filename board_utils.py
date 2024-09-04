@@ -36,10 +36,13 @@ class InPin():
     def is_on(self):
         command = f"dio get {self.type}_G{self.group_num} input {self.pin_num}"
         response = self.ser.send_command(command, read=True)
-        response_int = int(response.split("\n")[-2])
-        if response_int == 1:
-            return True
-        return False
+        try:
+            response_int = int(response.split("\n")[-2])
+            if response_int == 1:
+                return True
+            return False
+        except: 
+            return False
 
 class OutPin():
     def __init__(self, pin, serial_connection, group=0, v=True, byte_mode=False):
