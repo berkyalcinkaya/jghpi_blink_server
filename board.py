@@ -12,7 +12,7 @@ from board_utils import LED1, LED2, LED3, get_rate_from_switches, switch_on
 from utils import board_is_on
 import requests
 
-BASE_URL = "http://10.2.65.146:5000"
+BASE_URL = "http://10.2.65.58:5000"
 
 # Event to stop threads
 stop_event = threading.Event()
