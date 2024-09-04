@@ -21,12 +21,12 @@ def turn_on_blink_via_api(rate):
     url = f"{BASE_URL}/blink"
     data = {"rate": int(rate)}
     response = requests.post(url, json=data)
-    print(response)
+    print(response.text)
 
 def turn_off_blink_via_api():
     url = f"{BASE_URL}/off"
     response = requests.get(url)
-    print(response)
+    print(response.text)
 
 last_switch_state = False
 switch_state_on = switch_on()
