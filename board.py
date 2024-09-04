@@ -46,4 +46,4 @@ while True:
         elif (not switch_on()) and board_is_on():
             print("turning off board via API")
             turn_off_blink_via_api()
-    time.sleep(1)
+    time.sleep(0.1)
