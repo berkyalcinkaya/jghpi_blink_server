@@ -6,6 +6,7 @@ from utils import board_is_on, triggered_remote, update_json_file, get_json_dict
 from board_utils import (all_off, get_interval_from_rate, switch_on, all_on, all_on_pwm, configure_leds, 
                          LED1, LED2, LED3, leds, serial_conn)
 
+MIN_RATE = 50
 BAUD_RATE = 115200
 PWM_SLEEP = 0.005
 RUN_LIGHTS = True # keep as false to test API alone
@@ -41,8 +42,11 @@ def test_fps():
     if rate is None or not isinstance(rate, float) or rate == 0:
         return jsonify({'error': 'Invalid input, must provide a nonzero integer rate with key name "freq"'}), 400
     
+    if rate < MIN_RATE:
+        return jsonify({"Error":'You gotta be quicker than that, buddy.'}), 400
+    
     # pin 0 is top: fastest
-    # pin 1 is middle: target freq
+    # pin 1 is middle: target  freq
     # pin 2 is bottom: slowest
 
     freq = rate/2

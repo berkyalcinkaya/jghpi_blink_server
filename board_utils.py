@@ -14,13 +14,14 @@ def configure_leds(baud_rate):
     LED2 = OutPin(1, serial_conn)
     LED3 = OutPin(2, serial_conn)
 
+    # Configure switches
     SWITCH_ON = InPin(0, serial_conn)
-    SWITCH_50 = InPin(1, serial_conn)
-    SWITCH_100 = InPin(2, serial_conn)
-    SWITCH_200 = InPin(3, serial_conn)
+    SWITCH_100 = InPin(1, serial_conn)
+    SWITCH_500 = InPin(2, serial_conn)
+    SWITCH_1000 = InPin(3, serial_conn)
 
     leds = [LED1, LED2, LED3]
-    return LED1, LED2, LED3, SWITCH_ON, SWITCH_50, SWITCH_100, SWITCH_200, leds, serial_conn
+    return LED1, LED2, LED3, SWITCH_ON, SWITCH_100, SWITCH_500, SWITCH_1000, leds, serial_conn
 
 class InPin():
     def __init__(self, pin, serial_connection, group=0, v=False):
@@ -78,12 +79,12 @@ def get_interval_from_rate(rate):
     return (1/rate)
 
 def get_rate_from_switches():
-    if SWITCH_50.is_on():
-        return 50
     if SWITCH_100.is_on():
         return 100
-    if SWITCH_200.is_on():
-        return 200
+    if SWITCH_500.is_on():
+        return 500
+    if SWITCH_1000.is_on():
+        return 1000
     return None
 
 def switch_on():
@@ -107,4 +108,4 @@ def all_off(leds, sleep=0.005):
         if sleep:
             time.sleep(sleep)
 
-LED1, LED2, LED3, SWITCH_ON, SWITCH_50, SWITCH_100, SWITCH_200, leds, serial_conn = configure_leds(115200)
+LED1, LED2, LED3, SWITCH_ON, SWITCH_100, SWITCH_500, SWITCH_1000, leds, serial_conn = configure_leds(115200)
