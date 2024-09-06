@@ -33,16 +33,13 @@ switch_state_on = switch_on()
 while True:
     last_switch_state = switch_state_on
     switch_state_on = switch_on()
+    print(f"switch state: {switch_state_on}, last_switch_state: {last_switch_state}")
     switch_toggled = last_switch_state != switch_state_on
     if switch_toggled:
         print("switch has been toggled")
         if switch_on() and not board_is_on():
-            print("getting rate from switches")
             rate = get_rate_from_switches()
-            print("got rate ", rate, "from switches")
             if rate:
-                print("turning on via api")
                 turn_on_blink_via_api(rate)
         elif (not switch_on()) and board_is_on():
-            print("turning off board via API")
             turn_off_blink_via_api()

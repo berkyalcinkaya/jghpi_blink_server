@@ -13,15 +13,16 @@ def configure_leds(baud_rate):
     LED1 = OutPin(0, serial_conn)
     LED2 = OutPin(1, serial_conn)
     LED3 = OutPin(2, serial_conn)
+    LED4 = OutPin(3, serial_conn)
 
     # Configure switches
     SWITCH_ON = InPin(0, serial_conn)
     SWITCH_100 = InPin(1, serial_conn)
-    SWITCH_500 = InPin(2, serial_conn)
-    SWITCH_1000 = InPin(3, serial_conn)
+    SWITCH_200 = InPin(2, serial_conn)
+    SWITCH_500 = InPin(3, serial_conn)
 
     leds = [LED1, LED2, LED3]
-    return LED1, LED2, LED3, SWITCH_ON, SWITCH_100, SWITCH_500, SWITCH_1000, leds, serial_conn
+    return LED1, LED2, LED3, LED4, SWITCH_ON, SWITCH_100, SWITCH_200, SWITCH_500, leds, serial_conn
 
 class InPin():
     def __init__(self, pin, serial_connection, group=0, v=False):
@@ -45,7 +46,7 @@ class InPin():
             return False
 
 class OutPin():
-    def __init__(self, pin, serial_connection, group=0, v=True, byte_mode=False):
+    def __init__(self, pin, serial_connection, group=0, v=False, byte_mode=False):
         self.pin_num = int(pin)
         self.group_num = group
         self.type = "DO"
@@ -62,7 +63,7 @@ class OutPin():
             command = f"dio set {self.type}_G{self.group_num} {self.pin_num} active"
         
         self.ser.send_command(command, byte_mode=self.byte_mode)
-        print(command)
+        #print(command)
         self.is_on = True
 
     def off(self):
@@ -70,7 +71,7 @@ class OutPin():
         
         self.ser.send_command(command, byte_mode=self.byte_mode)
         self.is_on = False
-        print(command)
+        #print(command)
 
     def toggle(self):
         if self.is_on:
@@ -84,10 +85,10 @@ def get_interval_from_rate(rate):
 def get_rate_from_switches():
     if SWITCH_100.is_on():
         return 100
+    if SWITCH_200.is_on():
+        return 200
     if SWITCH_500.is_on():
         return 500
-    if SWITCH_1000.is_on():
-        return 1000
     return None
 
 def switch_on():
@@ -111,4 +112,4 @@ def all_off(leds, sleep=0.005):
         if sleep:
             time.sleep(sleep)
 
-LED1, LED2, LED3, SWITCH_ON, SWITCH_100, SWITCH_500, SWITCH_1000, leds, serial_conn = configure_leds(115200)
+LED1, LED2, LED3, LED4, SWITCH_ON, SWITCH_100, SWITCH_200, SWITCH_500, leds, serial_conn = configure_leds(115200)
