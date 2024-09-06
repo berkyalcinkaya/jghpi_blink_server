@@ -23,6 +23,12 @@ def turn_on_blink_via_api(rate):
     response = requests.post(url, json=data)
     print(response.text)
 
+def turn_on_blue_via_api():
+    url = f"{BASE_URL}/blink"
+    data = {"blue": 0}
+    response = requests.post(url, json=data)
+    print(response.text)
+
 def turn_off_blink_via_api():
     url = f"{BASE_URL}/off"
     response = requests.get(url)
@@ -33,13 +39,13 @@ switch_state_on = switch_on()
 while True:
     last_switch_state = switch_state_on
     switch_state_on = switch_on()
-    print(f"switch state: {switch_state_on}, last_switch_state: {last_switch_state}")
     switch_toggled = last_switch_state != switch_state_on
     if switch_toggled:
-        print("switch has been toggled")
         if switch_on() and not board_is_on():
             rate = get_rate_from_switches()
             if rate:
                 turn_on_blink_via_api(rate)
+            else:
+                turn_on_blue_via_api()
         elif (not switch_on()) and board_is_on():
             turn_off_blink_via_api()

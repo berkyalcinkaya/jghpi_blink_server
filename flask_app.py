@@ -4,7 +4,7 @@ import threading
 import time
 from utils import board_is_on, triggered_remote, update_json_file, get_json_dict
 from board_utils import (all_off, get_interval_from_rate, switch_on, all_on, all_on_pwm, configure_leds, 
-                         LED1, LED2, LED3, leds, serial_conn)
+                         LED1, LED2, LED3, LED4, leds, serial_conn)
 
 MIN_RATE = 50
 BAUD_RATE = 115200
@@ -14,7 +14,7 @@ thread = None
 stop_event = threading.Event()
 
 def blink_all_three_multiples(periods):
-    all_off(leds)
+    all_off(leds + [LED4])
     all_on_pwm(leds, periods, sleep=PWM_SLEEP)
     while not stop_event.is_set():
         continue
@@ -32,7 +32,6 @@ def test_fps():
         all_off(leds)
     
     data = request.json
-    print(data)
     rate = data.get('rate')
     try:
         rate = float(rate)
@@ -40,9 +39,13 @@ def test_fps():
         rate = rate
     
     if rate is None or not isinstance(rate, float) or rate == 0:
+        LED4.on(pwm=False)
+        time.sleep(0.001)
         return jsonify({'error': 'Invalid input, must provide a nonzero integer rate with key name "freq"'}), 400
     
     if rate < MIN_RATE:
+        LED4.on(pwm=False)
+        time.sleep(0.001)
         return jsonify({"Error":'You gotta be quicker than that, buddy.'}), 400
     
     # pin 0 is top: fastest
@@ -84,22 +87,16 @@ def stop_blinking_thread():
         
 @app.route("/off")
 def turn_off():
-    print("Attempting to turn off the board...")  # Debugging line
     if board_is_on():
-        print("Board is currently on.")  # Debugging line
         update_json_file(0, [0,0,0], False)
         stop_blinking_thread()
-        all_off(leds)
-        print("All LEDs turned off.")  # Debugging line
+        all_off(leds+[LED4])
         
         if switch_on():
-            print("On/off switch is still on.")  # Debugging line
             return jsonify({"warning": "on/off switch is on. Turn off on board"}), 200
         else:
-            print("Board turned off successfully.")  # Debugging line
             return "Board Turned Off Successfully", 200
     else:
-        print("Board is already off.")  # Debugging line
         return "Board Already Off", 200
 
 @app.route("/debug")
