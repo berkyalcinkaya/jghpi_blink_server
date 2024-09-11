@@ -47,5 +47,6 @@ while True:
                 turn_on_blink_via_api(rate)
             else:
                 turn_on_blue_via_api()
-        elif (not switch_on()) and board_is_on():
+        elif (not switch_on()): #and board_is_on():
             turn_off_blink_via_api()
+

@@ -48,6 +48,8 @@ def test_fps():
         time.sleep(0.001)
         return jsonify({"Error":'You gotta be quicker than that, buddy.'}), 400
     
+    LED4.off()
+    
     # pin 0 is top: fastest
     # pin 1 is middle: target  freq
     # pin 2 is bottom: slowest
