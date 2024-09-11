@@ -89,10 +89,11 @@ def stop_blinking_thread():
         
 @app.route("/off")
 def turn_off():
+    LED4.off()
     if board_is_on():
         update_json_file(0, [0,0,0], False)
         stop_blinking_thread()
-        all_off(leds+[LED4])
+        all_off(leds)
         
         if switch_on():
             return jsonify({"warning": "on/off switch is on. Turn off on board"}), 200
