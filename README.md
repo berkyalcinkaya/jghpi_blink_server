@@ -132,10 +132,24 @@ print(response.json())
 
 ## Notes
 
+- If making calls from outside the network *legacy*, the user will need to be on the VPN network. 
 - Make sure the Raspberry Pi is connected to the network and the static IP **10.2.44.165** is accessible.
 - For any hardware issues or troubleshooting, ensure that the board is properly powered and the LEDs are connected correctly.
 
 ## Development
 
 The code is designed to be extensible. You can modify the LED blinking logic, add more LEDs, or adjust the frequency calculations based on your testing requirements.
+
+### Development Instructions:
+**Accessing the device**: plug in a monitor to the HDMI port on the Raspberry Pi and plug in a keyboard to any usb port. You will need to unplug the device from power and plug it back in to establish an HDMI signal. 
+
+**username**: ubuntu<br>
+**password**: jghpi2024
+
+The code for the server and input detection is located in the directory `/blink`. Here, you can fetch the latest changes using `git pull`. Upon pulling updates, you willl need to restart the server and board script. 
+
+First, run ```python3 flask_app.py&```. To run the server and push it to the background (as signified by the `&` char). Press `Enter` and then run ```python3 board.py``` to start the main board script.
+
+You can unplug the monitor and keyboard, and resume normal usage. 
+
 
