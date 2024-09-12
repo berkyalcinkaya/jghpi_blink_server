@@ -141,7 +141,7 @@ print(response.json())
 The code is designed to be extensible. You can modify the LED blinking logic, add more LEDs, or adjust the frequency calculations based on your testing requirements.
 
 ### Development Instructions:
-**Accessing the device**: plug in a monitor to the HDMI port on the Raspberry Pi and plug in a keyboard to any usb port. You will need to unplug the device from power and plug it back in to establish an HDMI signal. 
+**Accessing the device**: plug in a monitor to the HDMI port on the Raspberry Pi and plug in a keyboard to any usb port on the device. You will need to unplug the device from power and plug it back in to establish an HDMI signal. After doing this, the device should boot-up and after a few seconds, the log-in screen should be displayed on the monitor. Log in with the following credentials:
 
 **username**: ubuntu<br>
 **password**: jghpi2024
